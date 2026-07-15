@@ -1,16 +1,15 @@
 #include "android_files_backup/adb_client.h"
 #include "android_files_backup/adb_device.h"
 #include "android_files_backup/process_runner.h"
+#include "android_files_backup/utils.h"
 
 #include <QRegularExpression>
 #include <QStringList>
 #include <optional>
-#include <QRegularExpression>
 #include <QFileInfo>
 #include <qfileinfo.h>
 #include <qglobal.h>
 #include <qnamespace.h>
-#include <qregularexpression.h>
 #include <stdexcept>
 
 namespace android_files_backup {
@@ -71,15 +70,7 @@ void AdbClient::testSync() {
         );
 
     
-    QString wildcard = "*Diki sownik angielskiego*";
-
-    QString regexText =
-        QRegularExpression::wildcardToRegularExpression(wildcard);
-
-    QRegularExpression pattern(
-        regexText,
-        QRegularExpression::CaseInsensitiveOption
-    );
+    auto pattern = android_files_backup::fromWildCardToRegularExpression("*Diki sownik angielskiego*");
 
     for (QString& file : files) {
         qInfo().noquote() << file;
