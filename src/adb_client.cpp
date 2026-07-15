@@ -44,51 +44,47 @@ void AdbClient::chooseDevice() {
     }
 }
 
-void AdbClient::testSync() {
-    if (device == std::nullopt) {
-        qInfo() << "Nie wybrano urządzenia";
-        return;
-    }
+void AdbClient::pullFiles(QString remote, QString target, QString condition) {
+    qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target << "spełniające warunek:" << condition;
 
-    if (!device->isUsable()) {
-        qInfo() << "Urządzenie nie zostało zautoryzowane";
-        return;
-    }
+    android_files_backup::newDirectory(target);
 
-    //const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", "/sdcard/DCIM", "-type", "f", "-mtime", "-7"});
-    const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", "/sdcard/DCIM/Screenshots"});
+    const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", remote});
 
-    if (result.exitCode != 0) {
-        qInfo().noquote() << result.standardError;
-        return;
-    }
-
-    QStringList files = 
+    auto files =
         result.standardOutput.split(
             '\n',
             Qt::SkipEmptyParts
         );
 
-    
-    auto pattern = android_files_backup::fromWildCardToRegularExpression("*Diki sownik angielskiego*");
+    auto pattern = android_files_backup::fromWildCardToRegularExpression(condition);
 
-    for (QString& file : files) {
-        qInfo().noquote() << file;
+    long long int cnt = 0;
+
+    for (auto file : files) {
+        cnt++;
+        if (cnt % 100 == 0) {
+            qInfo() << "Postęp: " << cnt << "/" << files.size();
+        }
+        //qInfo().noquote() << file;
         file = file.trimmed();
 
         const QString fileName = QFileInfo(file).fileName();
 
         if(pattern.match(fileName).hasMatch()) {
-            qInfo() << "Biorę plik";
 
-            const ProcessResult r = runProcess("adb", {"pull", file, "build/test"});
-            if (r.exitCode != 0) {
-                qInfo() << "Coś poszło nie tak";
-                qInfo() << file;
-                qInfo().noquote() << result.standardError;
+            const ProcessResult pullResult = runProcess("adb", {"pull", file, target});
+            if (pullResult.exitCode != 0) {
+                qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
+                qInfo() << "adb pull " + file + " " + target;
+                qInfo().noquote() << pullResult.standardError;
+                qInfo().noquote() << pullResult.standardOutput;
+                return;
             }
         }
     }
+    qInfo() << "Postęp: " << cnt << "/" << files.size();
+
 
 }
 

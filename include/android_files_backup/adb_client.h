@@ -11,7 +11,7 @@ namespace android_files_backup {
 class AdbClient {
 public:
     void chooseDevice();
-    void testSync();
+    void pullFiles(QString remote, QString target, QString condition = "");
 
 private:
     void refreshDevicesList();
