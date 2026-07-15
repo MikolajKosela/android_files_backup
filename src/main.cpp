@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
     android_files_backup::AdbClient adb;
 
     adb.chooseDevice();
+    adb.testSync();
 
     return 0;
 }

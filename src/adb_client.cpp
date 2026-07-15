@@ -4,6 +4,10 @@
 
 #include <QRegularExpression>
 #include <QStringList>
+#include <optional>
+#include <QRegularExpression>
+#include <QFileInfo>
+#include <qfileinfo.h>
 #include <qglobal.h>
 #include <qnamespace.h>
 #include <qregularexpression.h>
@@ -11,9 +15,7 @@
 
 namespace android_files_backup {
 
-void AdbClient::refreshDevicesList() {
-    devicesList = listDevices();
-}
+//Public
 
 void AdbClient::chooseDevice() {
     refreshDevicesList();
@@ -41,6 +43,67 @@ void AdbClient::chooseDevice() {
     } else {
         // Do dokończenia
     }
+}
+
+void AdbClient::testSync() {
+    if (device == std::nullopt) {
+        qInfo() << "Nie wybrano urządzenia";
+        return;
+    }
+
+    if (!device->isUsable()) {
+        qInfo() << "Urządzenie nie zostało zautoryzowane";
+        return;
+    }
+
+    //const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", "/sdcard/DCIM", "-type", "f", "-mtime", "-7"});
+    const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", "/sdcard/DCIM/Screenshots"});
+
+    if (result.exitCode != 0) {
+        qInfo().noquote() << result.standardError;
+        return;
+    }
+
+    QStringList files = 
+        result.standardOutput.split(
+            '\n',
+            Qt::SkipEmptyParts
+        );
+
+    
+    QString wildcard = "*Diki sownik angielskiego*";
+
+    QString regexText =
+        QRegularExpression::wildcardToRegularExpression(wildcard);
+
+    QRegularExpression pattern(
+        regexText,
+        QRegularExpression::CaseInsensitiveOption
+    );
+
+    for (QString& file : files) {
+        qInfo().noquote() << file;
+        file = file.trimmed();
+
+        const QString fileName = QFileInfo(file).fileName();
+
+        if(pattern.match(fileName).hasMatch()) {
+            qInfo() << "Biorę plik";
+
+            const ProcessResult r = runProcess("adb", {"pull", file, "build/test"});
+            if (r.exitCode != 0) {
+                qInfo() << "Coś poszło nie tak";
+                qInfo() << file;
+                qInfo().noquote() << result.standardError;
+            }
+        }
+    }
+
+}
+
+//Private
+void AdbClient::refreshDevicesList() {
+    devicesList = listDevices();
 }
 
 QList<AdbDevice> AdbClient::listDevices() const {
