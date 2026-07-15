@@ -30,6 +30,8 @@ struct AdbDevice {
     [[nodiscard]] bool isUsable() const {
         return state == AdbDeviceState::Device;
     }
+
+    QString printableDevice() const;
 };
 
 [[nodiscard]] AdbDeviceState parseDeviceState(const QString& state);

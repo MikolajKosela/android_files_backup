@@ -1,5 +1,7 @@
 #include "android_files_backup/adb_device.h"
 
+#include <QDebug>
+
 namespace android_files_backup {
 
 AdbDeviceState parseDeviceState(const QString& state) {
@@ -57,6 +59,16 @@ QString deviceStateToString(AdbDeviceState state)
     }
 
     return "unknown";
+}
+
+QString AdbDevice::printableDevice() const {
+        return QString("%1 | %2  %3")
+            .arg(serial)
+            .arg(model)
+            .arg(
+                android_files_backup:: 
+                    deviceStateToString(state)
+            );
 }
 
 }

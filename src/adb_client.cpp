@@ -11,6 +11,38 @@
 
 namespace android_files_backup {
 
+void AdbClient::refreshDevicesList() {
+    devicesList = listDevices();
+}
+
+void AdbClient::chooseDevice() {
+    refreshDevicesList();
+
+    if (devicesList.isEmpty()) {
+        qInfo() << "Nie znaleziono żadnych urządzeń.";
+        return;
+    }
+
+    qInfo() << "Podłączone urządzenia";
+    for (qsizetype i = 0; i < devicesList.size(); ++i) {
+        const auto& device = devicesList[i];
+
+        qInfo().noquote() <<
+            QString("[%1] %2")
+                .arg(i)
+                .arg(device.printableDevice());
+
+    }
+
+    if (devicesList.size() == 1) {
+        qInfo() << "Zostało wybrane jedyne podłączone urządzenie";
+        device = devicesList[0];
+        //qInfo().noquote() << device->printableDevice();
+    } else {
+        // Do dokończenia
+    }
+}
+
 QList<AdbDevice> AdbClient::listDevices() const {
     const ProcessResult result = 
         runProcess("adb", {"devices", "-l"});
