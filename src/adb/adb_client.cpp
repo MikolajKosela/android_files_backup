@@ -60,8 +60,21 @@ AdbDevice parseDeviceLine(const QString &line) {
     return device;
 }
 
-void AdbClient::pullFiles(const AdbDevice &device, QString remote,
-                          QString target, QString condition) {
+void AdbClient::pullFile(const AdbDevice &device, const QString file,
+                         const QString target) {
+    const ProcessResult pullResult =
+        runProcess("adb", {"-s", device.serial, "pull", "-a", file, target});
+
+    if (pullResult.exitCode != 0) {
+        qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
+        qInfo() << "adb pull -a " + file + " " + target;
+        qInfo().noquote() << pullResult.standardError;
+        qInfo().noquote() << pullResult.standardOutput;
+    }
+}
+
+void AdbClient::pullFiles(const AdbDevice &device, const QString remote,
+                          const QString target, const QString condition) {
     qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target
                       << "spełniające warunek:" << condition;
 
@@ -84,20 +97,12 @@ void AdbClient::pullFiles(const AdbDevice &device, QString remote,
         }
         // qInfo().noquote() << file;
         file = file.trimmed();
+        // qInfo().noquote() << file;
 
         const QString fileName = QFileInfo(file).fileName();
 
         if (pattern.match(fileName).hasMatch()) {
-
-            const ProcessResult pullResult =
-                runProcess("adb", {"pull", "-a", file, target});
-            if (pullResult.exitCode != 0) {
-                qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
-                qInfo() << "adb pull -a " + file + " " + target;
-                qInfo().noquote() << pullResult.standardError;
-                qInfo().noquote() << pullResult.standardOutput;
-                return;
-            }
+            pullFile(device, file, target);
         }
     }
     qInfo() << "Postęp: " << cnt << "/" << files.size();

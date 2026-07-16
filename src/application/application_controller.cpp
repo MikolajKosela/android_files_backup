@@ -17,15 +17,16 @@ const QList<AdbDevice> &ApplicationController::devices() const {
 }
 
 void ApplicationController::selectDevice() {
-    qInfo() << "Wybieram urządzenie...";
+    qInfo() << "Wybieram urządzenie pierwsze z listy gotowe urządzenie";
     for (const auto &device : devices_) {
-        if (!device.isUsable()) {
-            qInfo() << "Urządzenie nie jest gotowe";
+        if (device.isUsable()) {
+            usedDevice_ = device;
+            qInfo() << "Pomyślnie wyybrałem urządzenie:";
             return;
         }
-
-        usedDevice_ = device;
     }
+    qInfo() << "Nie udało mi się wybrać urządzenia" << "\n"
+            << "Sprawdź, czy jest poprawnie podłączone oraz zautoryzowane";
 }
 
 bool ApplicationController::hasSelectedDevice() const {
