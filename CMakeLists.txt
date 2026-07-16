@@ -13,10 +13,10 @@ qt_standard_project_setup()
 
 qt_add_executable(android_files_backup
     src/main.cpp
-    src/process_runner.cpp
-    src/adb_device.cpp
-    src/adb_client.cpp
-    src/utils.cpp
+    src/process/process_runner.cpp
+    src/adb/adb_device.cpp
+    src/adb/adb_client.cpp
+    src/utils/utils.cpp
 )
 
 target_include_directories(android_files_backup

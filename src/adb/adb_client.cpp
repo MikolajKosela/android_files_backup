@@ -1,7 +1,7 @@
-#include "android_files_backup/adb_client.h"
-#include "android_files_backup/adb_device.h"
-#include "android_files_backup/process_runner.h"
-#include "android_files_backup/utils.h"
+#include "android_files_backup/adb/adb_client.h"
+#include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/process/process_runner.h"
+#include "android_files_backup/utils/utils.h"
 
 #include <QFileInfo>
 #include <QRegularExpression>

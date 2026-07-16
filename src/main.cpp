@@ -1,9 +1,7 @@
-#include "android_files_backup/adb_client.h"
-#include "android_files_backup/adb_device.h"
+#include "android_files_backup/adb/adb_client.h"
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <exception>
 #include <qglobal.h>
 #include <qlist.h>
 
