@@ -3,10 +3,10 @@
 #include "android_files_backup/process_runner.h"
 #include "android_files_backup/utils.h"
 
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QStringList>
 #include <optional>
-#include <QFileInfo>
 #include <qfileinfo.h>
 #include <qglobal.h>
 #include <qnamespace.h>
@@ -14,7 +14,7 @@
 
 namespace android_files_backup {
 
-//Public
+// Public
 
 void AdbClient::chooseDevice() {
     refreshDevicesList();
@@ -26,38 +26,34 @@ void AdbClient::chooseDevice() {
 
     qInfo() << "Podłączone urządzenia";
     for (qsizetype i = 0; i < devicesList.size(); ++i) {
-        const auto& device = devicesList[i];
+        const auto &device = devicesList[i];
 
-        qInfo().noquote() <<
-            QString("[%1] %2")
-                .arg(i)
-                .arg(device.printableDevice());
-
+        qInfo().noquote() << QString("[%1] %2").arg(i).arg(
+            device.printableDevice());
     }
 
     if (devicesList.size() == 1) {
         qInfo() << "Zostało wybrane jedyne podłączone urządzenie";
         device = devicesList[0];
-        //qInfo().noquote() << device->printableDevice();
+        // qInfo().noquote() << device->printableDevice();
     } else {
         // Do dokończenia
     }
 }
 
 void AdbClient::pullFiles(QString remote, QString target, QString condition) {
-    qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target << "spełniające warunek:" << condition;
+    qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target
+                      << "spełniające warunek:" << condition;
 
     android_files_backup::newDirectory(target);
 
-    const ProcessResult result = runProcess("adb", {"-s", device->serial, "shell", "find", remote});
+    const ProcessResult result =
+        runProcess("adb", {"-s", device->serial, "shell", "find", remote});
 
-    auto files =
-        result.standardOutput.split(
-            '\n',
-            Qt::SkipEmptyParts
-        );
+    auto files = result.standardOutput.split('\n', Qt::SkipEmptyParts);
 
-    auto pattern = android_files_backup::fromWildCardToRegularExpression(condition);
+    auto pattern =
+        android_files_backup::fromWildCardToRegularExpression(condition);
 
     long long int cnt = 0;
 
@@ -66,14 +62,15 @@ void AdbClient::pullFiles(QString remote, QString target, QString condition) {
         if (cnt % 100 == 0) {
             qInfo() << "Postęp: " << cnt << "/" << files.size();
         }
-        //qInfo().noquote() << file;
+        // qInfo().noquote() << file;
         file = file.trimmed();
 
         const QString fileName = QFileInfo(file).fileName();
 
-        if(pattern.match(fileName).hasMatch()) {
+        if (pattern.match(fileName).hasMatch()) {
 
-            const ProcessResult pullResult = runProcess("adb", {"pull", file, target});
+            const ProcessResult pullResult =
+                runProcess("adb", {"pull", file, target});
             if (pullResult.exitCode != 0) {
                 qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
                 qInfo() << "adb pull " + file + " " + target;
@@ -84,34 +81,24 @@ void AdbClient::pullFiles(QString remote, QString target, QString condition) {
         }
     }
     qInfo() << "Postęp: " << cnt << "/" << files.size();
-
-
 }
 
-//Private
-void AdbClient::refreshDevicesList() {
-    devicesList = listDevices();
-}
+// Private
+void AdbClient::refreshDevicesList() { devicesList = listDevices(); }
 
 QList<AdbDevice> AdbClient::listDevices() const {
-    const ProcessResult result = 
-        runProcess("adb", {"devices", "-l"});
+    const ProcessResult result = runProcess("adb", {"devices", "-l"});
 
     if (!result.success()) {
-        throw std::runtime_error (
-            result.standardError.toStdString()
-        );
+        throw std::runtime_error(result.standardError.toStdString());
     }
 
     QList<AdbDevice> devices;
 
-    const QStringList lines = 
-        result.standardOutput.split(
-            '\n',
-            Qt::SkipEmptyParts
-        );
+    const QStringList lines =
+        result.standardOutput.split('\n', Qt::SkipEmptyParts);
 
-    for (const QString& rawLine : lines) {
+    for (const QString &rawLine : lines) {
         const QString line = rawLine.trimmed();
 
         if (line.isEmpty()) {
@@ -130,19 +117,13 @@ QList<AdbDevice> AdbClient::listDevices() const {
     return devices;
 }
 
-AdbDevice AdbClient::parseDeviceLine(const QString& line) const {
-    const QStringList parts = 
-        line.split(
-            QRegularExpression("\\s+"),
-            Qt::SkipEmptyParts
-        );
+AdbDevice AdbClient::parseDeviceLine(const QString &line) const {
+    const QStringList parts =
+        line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
     if (parts.size() < 2) {
         throw std::runtime_error(
-            QString("Nieprawidłowy wierdz adb: %1")
-                .arg(line)
-                .toStdString()
-        );
+            QString("Nieprawidłowy wierdz adb: %1").arg(line).toStdString());
     }
 
     AdbDevice device;
@@ -151,16 +132,14 @@ AdbDevice AdbClient::parseDeviceLine(const QString& line) const {
 
     QString stateText = parts[1];
 
-    if (stateText == "no" &&
-        parts.size() >= 3 &&
-        parts[2] == "permissions") {
-            stateText = "no permissions";
-        }
+    if (stateText == "no" && parts.size() >= 3 && parts[2] == "permissions") {
+        stateText = "no permissions";
+    }
 
     device.state = parseDeviceState(stateText);
 
     for (qsizetype i = 2; i < parts.size(); ++i) {
-        const QString& token = parts[i];
+        const QString &token = parts[i];
 
         const qsizetype colonPosition = token.indexOf(';');
 
@@ -174,20 +153,15 @@ AdbDevice AdbClient::parseDeviceLine(const QString& line) const {
         device.properties.insert(key, value);
     }
 
-    device.product =
-        device.properties.value("product");
+    device.product = device.properties.value("product");
 
-    device.model =
-        device.properties.value("model");
+    device.model = device.properties.value("model");
 
-    device.deviceName =
-        device.properties.value("device");
+    device.deviceName = device.properties.value("device");
 
-    device.transportId =
-        device.properties.value("transport_id");
+    device.transportId = device.properties.value("transport_id");
 
     return device;
 }
-
 
 } // namespace android_files_backup

@@ -1,9 +1,9 @@
 #include "android_files_backup/utils.h"
 
-#include <QString>
-#include <QRegularExpression>
 #include <QDebug>
 #include <QDir>
+#include <QRegularExpression>
+#include <QString>
 
 namespace android_files_backup {
 
@@ -11,10 +11,8 @@ QRegularExpression fromWildCardToRegularExpression(QString wildCard) {
     QString regexText =
         QRegularExpression::wildcardToRegularExpression(wildCard);
 
-    QRegularExpression pattern(
-        regexText,
-        QRegularExpression::CaseInsensitiveOption
-    );
+    QRegularExpression pattern(regexText,
+                               QRegularExpression::CaseInsensitiveOption);
 
     return pattern;
 }
@@ -32,11 +30,10 @@ void newDirectory(QString target) {
         qInfo() << "Muszę usunąć zawartość starego folderu";
 
         for (const auto &file : dir.entryList(QDir::Files)) {
-            //qInfo() << "Usuwam: " << file;
+            // qInfo() << "Usuwam: " << file;
             dir.remove(file);
         }
-
     }
 }
 
-}
+} // namespace android_files_backup

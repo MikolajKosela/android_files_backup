@@ -4,7 +4,7 @@
 
 namespace android_files_backup {
 
-AdbDeviceState parseDeviceState(const QString& state) {
+AdbDeviceState parseDeviceState(const QString &state) {
     if (state == "device") {
         return AdbDeviceState::Device;
     }
@@ -36,9 +36,7 @@ AdbDeviceState parseDeviceState(const QString& state) {
     return AdbDeviceState::Unknown;
 }
 
-
-QString deviceStateToString(AdbDeviceState state)
-{
+QString deviceStateToString(AdbDeviceState state) {
     switch (state) {
     case AdbDeviceState::Device:
         return "device";
@@ -62,13 +60,10 @@ QString deviceStateToString(AdbDeviceState state)
 }
 
 QString AdbDevice::printableDevice() const {
-        return QString("%1 | %2  %3")
-            .arg(serial)
-            .arg(model)
-            .arg(
-                android_files_backup:: 
-                    deviceStateToString(state)
-            );
+    return QString("%1 | %2  %3")
+        .arg(serial)
+        .arg(model)
+        .arg(android_files_backup::deviceStateToString(state));
 }
 
-}
+} // namespace android_files_backup

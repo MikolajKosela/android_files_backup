@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "android_files_backup/adb_device.h"
 
@@ -9,16 +9,16 @@
 namespace android_files_backup {
 
 class AdbClient {
-public:
+  public:
     void chooseDevice();
     void pullFiles(QString remote, QString target, QString condition = "");
 
-private:
+  private:
     void refreshDevicesList();
     QList<AdbDevice> devicesList;
     std::optional<AdbDevice> device;
     [[nodiscard]] QList<AdbDevice> listDevices() const;
-    [[nodiscard]] AdbDevice parseDeviceLine(const QString& line) const;
+    [[nodiscard]] AdbDevice parseDeviceLine(const QString &line) const;
 };
 
 } // namespace android_files_backup

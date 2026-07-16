@@ -5,16 +5,12 @@
 
 namespace android_files_backup {
 
-bool ProcessResult::success() const
-{
+bool ProcessResult::success() const {
     return started && finished && exitCode == 0;
 }
 
-ProcessResult runProcess(
-    const QString& program,
-    const QStringList& arguments,
-    int timeoutMs)
-{
+ProcessResult runProcess(const QString &program, const QStringList &arguments,
+                         int timeoutMs) {
     QProcess process;
     ProcessResult result;
 
@@ -33,20 +29,17 @@ ProcessResult runProcess(
         process.kill();
         process.waitForFinished();
 
-        result.standardError =
-            QStringLiteral("Przekroczono limit czasu: ") +
-            process.errorString();
+        result.standardError = QStringLiteral("Przekroczono limit czasu: ") +
+                               process.errorString();
 
         return result;
     }
 
     result.exitCode = process.exitCode();
 
-    result.standardOutput =
-        QString::fromUtf8(process.readAllStandardOutput());
+    result.standardOutput = QString::fromUtf8(process.readAllStandardOutput());
 
-    result.standardError =
-        QString::fromUtf8(process.readAllStandardError());
+    result.standardError = QString::fromUtf8(process.readAllStandardError());
 
     return result;
 }

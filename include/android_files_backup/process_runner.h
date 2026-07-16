@@ -16,10 +16,8 @@ struct ProcessResult {
     [[nodiscard]] bool success() const;
 };
 
-[[nodiscard]] ProcessResult runProcess(
-    const QString& program,
-    const QStringList& arguments,
-    int timeoutMs = 30'000
-);
+[[nodiscard]] ProcessResult runProcess(const QString &program,
+                                       const QStringList &arguments,
+                                       int timeoutMs = 30'000);
 
 } // namespace android_files_backup

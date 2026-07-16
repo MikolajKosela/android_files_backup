@@ -1,12 +1,12 @@
 #pragma once
 
-#include <QString>
 #include <QMap>
+#include <QString>
 
 namespace android_files_backup {
 
 enum class AdbDeviceState {
-    Device, 
+    Device,
     Unauthorized,
     Offline,
     NoPermissions,
@@ -34,6 +34,6 @@ struct AdbDevice {
     QString printableDevice() const;
 };
 
-[[nodiscard]] AdbDeviceState parseDeviceState(const QString& state);
+[[nodiscard]] AdbDeviceState parseDeviceState(const QString &state);
 [[nodiscard]] QString deviceStateToString(AdbDeviceState state);
 } // namespace android_files_backup
