@@ -1,4 +1,4 @@
-#include "android_files_backup/adb/adb_client.h"
+#include "android_files_backup/application/application_controller.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -8,13 +8,23 @@
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
-    android_files_backup::AdbClient adb;
+    android_files_backup::ApplicationController controller;
 
-    adb.chooseDevice();
-    adb.pullFiles("/sdcard/DCIM/Screenshots", "build/test/ang",
-                  "*Diki sownik angielskiego*");
-    adb.pullFiles("/sdcard/DCIM/Screenshots", "build/test/niem",
-                  "*Diki sownik niemieckiego*");
+    controller.refreshDevices();
+
+    for (const auto &device : controller.devices()) {
+        qInfo().noquote() << device.serial << device.model
+                          << deviceStateToString(device.state);
+    }
+
+    controller.selectDevice();
+
+    controller.createFilesPull_debugFunction("/sdcard/DCIM/Screenshots",
+                                             "build/test/ang",
+                                             "*Diki sownik angielskiego*");
+    controller.createFilesPull_debugFunction("/sdcard/DCIM/Screenshots",
+                                             "build/test/niem",
+                                             "*Diki sownik niemieckiego*");
 
     return 0;
 }
