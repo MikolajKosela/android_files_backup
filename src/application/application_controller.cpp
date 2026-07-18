@@ -1,6 +1,7 @@
 #include "android_files_backup/application/application_controller.h"
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+
 #include <QDebug>
 #include <optional>
 #include <qnamespace.h>
@@ -16,31 +17,27 @@ const QList<AdbDevice> &ApplicationController::devices() const {
     return devices_;
 }
 
-void ApplicationController::selectDevice() {
-    qInfo() << "Wybieram urządzenie pierwsze z listy gotowe urządzenie";
+void ApplicationController::selectDevice(const QString &serial) {
     for (const auto &device : devices_) {
-        if (device.isUsable()) {
+        if (device.serial == serial && device.isUsable()) {
             usedDevice_ = device;
-            qInfo() << "Pomyślnie wybrałem urządzenie:";
-            return;
         }
     }
-    qInfo() << "Nie udało mi się wybrać urządzenia" << "\n"
-            << "Sprawdź, czy jest poprawnie podłączone oraz zautoryzowane";
 }
 
 bool ApplicationController::hasSelectedDevice() const {
-    if (usedDevice_ != std::nullopt && usedDevice_->isUsable()) {
+    if (usedDevice_.has_value() && usedDevice_->isUsable()) {
         return true;
     }
     return false;
 }
 
-void ApplicationController::createFilesPull_debugFunction(
+void ApplicationController::createFilesPull_functionForTesting(
     const QString remote, const QString target, const QString condition) {
 
-    if (usedDevice_.has_value()) {
-        adbClient_.pullFiles(usedDevice_.value(), remote, target, condition);
+    if (hasSelectedDevice()) {
+        backupService_.performFilesPull_functionForTesting(
+            adbClient_, usedDevice_.value(), remote, target, condition);
     }
 }
 

@@ -1,7 +1,6 @@
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/process/process_runner.h"
-#include "android_files_backup/utils/utils.h"
 
 #include <QFileInfo>
 #include <QRegularExpression>
@@ -84,47 +83,6 @@ ProcessResult AdbClient::runForDevice(const AdbDevice &device,
     }
 
     return result;
-}
-
-void AdbClient::pullFile(const AdbDevice &device, const QString file,
-                         const QString target) {
-    const ProcessResult pullResult =
-        runForDevice(device, {"pull", "-a", file, target});
-}
-
-void AdbClient::pullFiles(const AdbDevice &device, const QString remote,
-                          const QString target, const QString condition) {
-    qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target
-                      << "spełniające warunek:" << condition;
-
-    newDirectory(target);
-
-    const ProcessResult result =
-        runForDevice(device, {"shell", "find", remote});
-
-    auto files = result.standardOutput.split('\n', Qt::SkipEmptyParts);
-
-    auto pattern =
-        android_files_backup::fromWildCardToRegularExpression(condition);
-
-    long long int cnt = 0;
-
-    for (auto file : files) {
-        cnt++;
-        if (cnt % 100 == 0) {
-            qInfo() << "Postęp: " << cnt << "/" << files.size();
-        }
-        // qInfo().noquote() << file;
-        file = file.trimmed();
-        // qInfo().noquote() << file;
-
-        const QString fileName = QFileInfo(file).fileName();
-
-        if (pattern.match(fileName).hasMatch()) {
-            pullFile(device, file, target);
-        }
-    }
-    qInfo() << "Postęp: " << cnt << "/" << files.size();
 }
 
 QList<AdbDevice> AdbClient::listDevices() const {

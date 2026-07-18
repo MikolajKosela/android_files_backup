@@ -14,13 +14,6 @@ class AdbClient {
     runForDevice(const AdbDevice &device, const QStringList &arguments) const;
 
     [[nodiscard]] QList<AdbDevice> listDevices() const;
-
-    void pullFiles(const AdbDevice &device, const QString remote,
-                   const QString target, const QString condition = "");
-
-  private:
-    void pullFile(const AdbDevice &device, const QString file,
-                  const QString target);
 };
 
 } // namespace android_files_backup

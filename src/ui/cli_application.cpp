@@ -1,0 +1,107 @@
+#include "android_files_backup/ui/cli_application.h"
+#include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/application/application_controller.h"
+#include <qglobal.h>
+
+namespace android_files_backup {
+
+CliApplication::CliApplication(ApplicationController &controller)
+    : controller_(controller), input_(stdin), output_(stdout), error_(stderr) {}
+
+int CliApplication::run() {
+    while (true) {
+        choiceDevice();
+        createFilesPull_functionForTesting();
+        return 0;
+    }
+}
+
+int CliApplication::readInteger(const QString &prompt, int minimun,
+                                int maximum) {
+    while (true) {
+        output_ << prompt;
+        output_.flush();
+
+        const QString line = input_.readLine().trimmed();
+
+        bool ok = false;
+        const int value = line.toInt(&ok);
+
+        if (!ok) {
+            error_ << "Podaj poprawną liczbę. \n";
+            error_.flush();
+            continue;
+        }
+
+        if (value < minimun || value > maximum) {
+            error_ << "Wartość musi być z zakresu: " << minimun << " - "
+                   << maximum << "\n";
+            error_.flush();
+        }
+
+        return value;
+    }
+}
+
+QString CliApplication::readLine(const QString &prompt) {
+    output_ << prompt;
+    output_.flush();
+
+    return input_.readLine().trimmed();
+}
+
+void CliApplication::showDevices() {
+    controller_.refreshDevices();
+
+    const auto &devices = controller_.devices();
+
+    if (devices.isEmpty()) {
+        output_ << "Nie znaleziono urządzeń \n";
+        output_.flush();
+    }
+
+    output_ << "Znalezione urządzenia: \n";
+
+    for (auto i = 0; i < devices.size(); i++) {
+        auto &device = devices[i];
+        output_ << "[" << i << "] " << device.serial << device.model
+                << " state: " << deviceStateToString(device.state) << "\n";
+    }
+
+    output_.flush();
+}
+
+void CliApplication::choiceDevice() {
+    showDevices();
+
+    int devicesNum = controller_.devices_.size();
+
+    const int choice = readInteger("Wybierz urządzenie: ", 0, devicesNum - 1);
+
+    const AdbDevice &device = controller_.devices_[choice];
+
+    controller_.selectDevice(device.serial);
+
+    output_ << "Wybrano " << device.serial << " " << device.model << "\n";
+    output_.flush();
+}
+
+void CliApplication::createFilesPull_functionForTesting() {
+    QString remote, target, condition;
+
+    remote = "/sdcard/DCIM/Screenshots";
+    target = "build/test/ang";
+    condition = "*Diki sownik angielskiego*";
+
+    output_ << "Kopiuję pliki z " << remote << " do " << target
+            << " spełniające warunek: " << condition << "\n";
+
+    output_.flush();
+
+    controller_.createFilesPull_functionForTesting(remote, target, condition);
+
+    output_ << "Pomyślnie wykonano kopię :) \n";
+    output_.flush();
+}
+
+} // namespace android_files_backup

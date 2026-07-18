@@ -2,6 +2,7 @@
 
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/backup/backup_service.h"
 
 #include <QList>
 #include <QString>
@@ -19,16 +20,17 @@ class ApplicationController {
 
     [[nodiscard]] const QList<AdbDevice> &devices() const;
 
-    void selectDevice();
+    void selectDevice(const QString &serial);
 
     [[nodiscard]] bool hasSelectedDevice() const;
 
-    void createFilesPull_debugFunction(const QString remote,
-                                       const QString target,
-                                       const QString condition);
+    void createFilesPull_functionForTesting(const QString remote,
+                                            const QString target,
+                                            const QString condition);
 
     AdbClient adbClient_;
     QList<AdbDevice> devices_;
+    BackupService backupService_;
 
     std::optional<AdbDevice> usedDevice_;
 };
