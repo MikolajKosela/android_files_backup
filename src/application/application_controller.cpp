@@ -21,7 +21,7 @@ void ApplicationController::selectDevice() {
     for (const auto &device : devices_) {
         if (device.isUsable()) {
             usedDevice_ = device;
-            qInfo() << "Pomyślnie wyybrałem urządzenie:";
+            qInfo() << "Pomyślnie wybrałem urządzenie:";
             return;
         }
     }

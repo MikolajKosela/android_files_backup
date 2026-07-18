@@ -60,17 +60,36 @@ AdbDevice parseDeviceLine(const QString &line) {
     return device;
 }
 
+ProcessResult AdbClient::runForDevice(const AdbDevice &device,
+                                      const QStringList &arguments) const {
+    QStringList argumentsWithDevice = {"-s", device.serial};
+    argumentsWithDevice.append(arguments);
+
+    const ProcessResult result = runProcess("adb", argumentsWithDevice);
+
+    if (!result.success()) {
+        qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
+        QString commend = "adb";
+        for (const auto &arg : argumentsWithDevice) {
+            commend += " " + arg;
+        }
+
+        qInfo().noquote() << commend;
+        if (QString info = result.standardOutput; !info.isEmpty()) {
+            qInfo().noquote() << info;
+        }
+        if (QString info = result.standardError; !info.isEmpty()) {
+            qInfo().noquote() << info;
+        }
+    }
+
+    return result;
+}
+
 void AdbClient::pullFile(const AdbDevice &device, const QString file,
                          const QString target) {
     const ProcessResult pullResult =
-        runProcess("adb", {"-s", device.serial, "pull", "-a", file, target});
-
-    if (pullResult.exitCode != 0) {
-        qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
-        qInfo() << "adb pull -a " + file + " " + target;
-        qInfo().noquote() << pullResult.standardError;
-        qInfo().noquote() << pullResult.standardOutput;
-    }
+        runForDevice(device, {"pull", "-a", file, target});
 }
 
 void AdbClient::pullFiles(const AdbDevice &device, const QString remote,
@@ -78,10 +97,10 @@ void AdbClient::pullFiles(const AdbDevice &device, const QString remote,
     qInfo().noquote() << "\nKopiuję pliki z" << remote << "do" << target
                       << "spełniające warunek:" << condition;
 
-    android_files_backup::newDirectory(target);
+    newDirectory(target);
 
     const ProcessResult result =
-        runProcess("adb", {"-s", device.serial, "shell", "find", remote});
+        runForDevice(device, {"shell", "find", remote});
 
     auto files = result.standardOutput.split('\n', Qt::SkipEmptyParts);
 
