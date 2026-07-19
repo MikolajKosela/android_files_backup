@@ -24,9 +24,9 @@ class ApplicationController {
 
     [[nodiscard]] bool hasSelectedDevice() const;
 
-    void createFilesPull_functionForTesting(const QString remote,
-                                            const QString target,
-                                            const QString condition);
+    void createFilesPull_functionForTesting(
+        const QString remote, const QString target, const QString condition,
+        const ProgressCallback &progressCallback);
 
     AdbClient adbClient_;
     QList<AdbDevice> devices_;

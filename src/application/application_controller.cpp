@@ -1,6 +1,7 @@
 #include "android_files_backup/application/application_controller.h"
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/backup/backup_progress.h"
 
 #include <QDebug>
 #include <optional>
@@ -33,11 +34,13 @@ bool ApplicationController::hasSelectedDevice() const {
 }
 
 void ApplicationController::createFilesPull_functionForTesting(
-    const QString remote, const QString target, const QString condition) {
+    const QString remote, const QString target, const QString condition,
+    const ProgressCallback &progressCallback) {
 
     if (hasSelectedDevice()) {
-        backupService_.performFilesPull_functionForTesting(
-            adbClient_, usedDevice_.value(), remote, target, condition);
+        return backupService_.performFilesPull_functionForTesting(
+            adbClient_, usedDevice_.value(), remote, target, condition,
+            progressCallback);
     }
 }
 

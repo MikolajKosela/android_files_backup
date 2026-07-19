@@ -1,6 +1,7 @@
 #include "android_files_backup/ui/cli_application.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/application/application_controller.h"
+#include "android_files_backup/backup/backup_progress.h"
 #include <qglobal.h>
 
 namespace android_files_backup {
@@ -11,7 +12,12 @@ CliApplication::CliApplication(ApplicationController &controller)
 int CliApplication::run() {
     while (true) {
         choiceDevice();
-        createFilesPull_functionForTesting();
+        createFilesPull_functionForTesting("/sdcard/DCIM/Screenshots",
+                                           "build/test/ang",
+                                           "*Diki sownik angielskiego*");
+        createFilesPull_functionForTesting("/sdcard/DCIM/Screenshots",
+                                           "build/test/niem",
+                                           "*Diki sownik niemieckiego*");
         return 0;
     }
 }
@@ -82,25 +88,28 @@ void CliApplication::choiceDevice() {
 
     controller_.selectDevice(device.serial);
 
-    output_ << "Wybrano " << device.serial << " " << device.model << "\n";
+    output_ << "Wybrano " << device.serial << " " << device.model
+            << "\n---------- \n";
     output_.flush();
 }
 
-void CliApplication::createFilesPull_functionForTesting() {
-    QString remote, target, condition;
-
-    remote = "/sdcard/DCIM/Screenshots";
-    target = "build/test/ang";
-    condition = "*Diki sownik angielskiego*";
+void CliApplication::createFilesPull_functionForTesting(QString remote,
+                                                        QString target,
+                                                        QString condition) {
 
     output_ << "Kopiuję pliki z " << remote << " do " << target
             << " spełniające warunek: " << condition << "\n";
 
     output_.flush();
 
-    controller_.createFilesPull_functionForTesting(remote, target, condition);
+    controller_.createFilesPull_functionForTesting(
+        remote, target, condition, [this](const BackupProgress &progress) {
+            output_ << "\r\x1B[2KPostęp: " << progress.processedFiles << " / "
+                    << progress.totalFiles << " " << progress.currentFile;
+            output_.flush();
+        });
 
-    output_ << "Pomyślnie wykonano kopię :) \n";
+    output_ << "\nPomyślnie wykonano kopię :) \n---------- \n";
     output_.flush();
 }
 

@@ -16,7 +16,8 @@ class CliApplication {
     void choiceDevice();
     void selectDevice(int choice);
 
-    void createFilesPull_functionForTesting();
+    void createFilesPull_functionForTesting(QString remote, QString target,
+                                            QString condition);
 
     [[nodiscard]] int readInteger(const QString &prompt, int minimum,
                                   int maximum);

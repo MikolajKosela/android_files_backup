@@ -1,16 +1,19 @@
 #include "android_files_backup/backup/backup_service.h"
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/backup/backup_progress.h"
 #include "android_files_backup/utils/utils.h"
 
 #include <QDebug>
 #include <QFileInfo>
+#include <qglobal.h>
 
 namespace android_files_backup {
 
 void BackupService::performFilesPull_functionForTesting(
     const AdbClient &adbClient, const AdbDevice &device, const QString remote,
-    const QString target, const QString condition) {
+    const QString target, const QString condition,
+    const ProgressCallback &progressCallback) {
     newDirectory(target);
 
     const ProcessResult result =
@@ -18,18 +21,21 @@ void BackupService::performFilesPull_functionForTesting(
 
     auto files = result.standardOutput.split('\n', Qt::SkipEmptyParts);
 
+    const qsizetype total = files.size();
+
     auto pattern =
         android_files_backup::fromWildCardToRegularExpression(condition);
 
-    long long int cnt = 0;
+    for (auto i = 0; i < total; ++i) {
+        const auto file = files[i].trimmed();
 
-    for (auto file : files) {
-        cnt++;
-        if (cnt % 100 == 0) {
-            qInfo() << "Postęp: " << cnt << "/" << files.size();
+        if (progressCallback) {
+            progressCallback({.processedFiles = i,
+                              .totalFiles = total,
+                              .currentFile = file});
         }
+
         // qInfo().noquote() << file;
-        file = file.trimmed();
         // qInfo().noquote() << file;
 
         const QString fileName = QFileInfo(file).fileName();
@@ -39,6 +45,5 @@ void BackupService::performFilesPull_functionForTesting(
                 adbClient.runForDevice(device, {"pull", "-a", file, target});
         }
     }
-    qInfo() << "Postęp: " << cnt << "/" << files.size();
 }
 } // namespace android_files_backup
