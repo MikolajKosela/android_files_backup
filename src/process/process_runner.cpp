@@ -5,10 +5,6 @@
 
 namespace android_files_backup {
 
-bool ProcessResult::success() const {
-    return started && finished && exitCode == 0;
-}
-
 ProcessResult runProcess(const QString &program, const QStringList &arguments,
                          int timeoutMs) {
     QProcess process;

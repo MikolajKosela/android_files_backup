@@ -13,12 +13,20 @@ qt_standard_project_setup()
 
 qt_add_executable(android_files_backup
     src/main.cpp
+
     src/application/application_controller.cpp
+
     src/backup/backup_service.cpp
+
     src/ui/cli_application.cpp
+
     src/process/process_runner.cpp
+
+    src/result/result.cpp
+
     src/adb/adb_device.cpp
     src/adb/adb_client.cpp
+
     src/utils/utils.cpp
 )
 

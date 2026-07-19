@@ -1,20 +1,11 @@
 #pragma once
 
+#include "android_files_backup/result/result.h"
+
 #include <QString>
 #include <QStringList>
 
 namespace android_files_backup {
-
-struct ProcessResult {
-    bool started = false;
-    bool finished = false;
-    int exitCode = -1;
-
-    QString standardOutput;
-    QString standardError;
-
-    [[nodiscard]] bool success() const;
-};
 
 [[nodiscard]] ProcessResult runProcess(const QString &program,
                                        const QStringList &arguments,
