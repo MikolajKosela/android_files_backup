@@ -120,4 +120,17 @@ QList<AdbDevice> AdbClient::listDevices() const {
     return devices;
 }
 
+AdbDeviceState AdbClient::getDeviceState(const QString &serial) const {
+    const ProcessResult result =
+        runProcess("adb", {"-s", serial, "get-state"}, 5'000);
+
+    if (!result.success()) {
+        return AdbDeviceState::Disconnected;
+    }
+
+    const QString state = result.standardOutput.trimmed();
+
+    return parseDeviceState(state);
+}
+
 } // namespace android_files_backup

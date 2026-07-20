@@ -52,6 +52,8 @@ QString deviceStateToString(AdbDeviceState state) {
         return "recovery";
     case AdbDeviceState::Sideload:
         return "sideload";
+    case AdbDeviceState::Disconnected:
+        return "disconnected";
     case AdbDeviceState::Unknown:
         return "unknown";
     }

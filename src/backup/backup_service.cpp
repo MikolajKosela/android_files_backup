@@ -19,20 +19,28 @@ BackupResult BackupService::performFilesPull_functionForTesting(
 
     BackupResult result;
 
-    newDirectory(target);
-
     QStringList files;
     try {
         files = adbClient.runForDevice(device, {"shell", "find", remote});
 
     } catch (const AdbException &error) {
+        if (const AdbDeviceState &state =
+                adbClient.getDeviceState(device.serial);
+            state != AdbDeviceState::Device) {
+            if (state == AdbDeviceState::Disconnected) {
+                throw BackupException("Urządzenie zostało odłączone\n");
+            } else {
+                throw BackupException(
+                    QStringLiteral("Napotkano problem z urządzeniem. "
+                                   "Jego stan to: %1\n")
+                        .arg(deviceStateToString(state)));
+            }
+        }
+
         throw BackupException(
             QStringLiteral(
                 "Nie znaleziono podanej ścieżki na wybranym telefonie\n%1")
                 .arg(QString(error.what())));
-
-        result.errors.append(QString(error.what()));
-        return result;
     }
 
     const qsizetype total = files.size();
@@ -54,6 +62,19 @@ BackupResult BackupService::performFilesPull_functionForTesting(
             try {
                 adbClient.runForDevice(device, {"pull", "-a", file, target});
             } catch (const AdbException &error) {
+
+                if (const AdbDeviceState &state =
+                        adbClient.getDeviceState(device.serial);
+                    state != AdbDeviceState::Device) {
+                    if (state == AdbDeviceState::Disconnected) {
+                        throw BackupException("Urządzenie zostało odłączone\n");
+                    } else {
+                        throw BackupException(
+                            QStringLiteral("Napotkano problem z urządzeniem. "
+                                           "Jego stan to: %1\n")
+                                .arg(deviceStateToString(state)));
+                    }
+                }
                 result.skippedFiles++;
                 result.errors.append(error.what());
                 continue;

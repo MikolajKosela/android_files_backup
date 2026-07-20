@@ -13,6 +13,8 @@ class AdbClient {
                              const QStringList &arguments) const;
 
     [[nodiscard]] QList<AdbDevice> listDevices() const;
+
+    [[nodiscard]] AdbDeviceState getDeviceState(const QString &serial) const;
 };
 
 } // namespace android_files_backup

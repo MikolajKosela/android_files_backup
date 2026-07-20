@@ -2,6 +2,7 @@
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/backup/backup_progress.h"
+#include "android_files_backup/errors/exceptions.h"
 #include "android_files_backup/result/result.h"
 
 #include <QDebug>
@@ -45,7 +46,7 @@ BackupResult ApplicationController::createFilesPull_functionForTesting(
             adbClient_, usedDevice_.value(), remote, target, condition,
             progressCallback);
     } else {
-        result.errors.append("Nie wybrano urządzenia");
+        throw BackupException("Niewybrano urządzenia\n");
     }
 
     return result;

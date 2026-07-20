@@ -13,7 +13,8 @@ enum class AdbDeviceState {
     Bootloader,
     Recovery,
     Sideload,
-    Unknown
+    Unknown,
+    Disconnected
 };
 
 struct AdbDevice {

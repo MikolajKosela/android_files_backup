@@ -4,6 +4,7 @@
 #include "android_files_backup/backup/backup_progress.h"
 #include "android_files_backup/errors/exceptions.h"
 #include "android_files_backup/result/result.h"
+#include "android_files_backup/utils/utils.h"
 #include <qglobal.h>
 #include <qstringliteral.h>
 
@@ -67,6 +68,8 @@ void CliApplication::showDevices() {
     if (devices.isEmpty()) {
         output_ << "Nie znaleziono urządzeń \n";
         output_.flush();
+
+        return;
     }
 
     output_ << "Znalezione urządzenia: \n";
@@ -85,6 +88,10 @@ void CliApplication::choiceDevice() {
 
     int devicesNum = controller_.devices_.size();
 
+    if (devicesNum == 0) {
+        return;
+    }
+
     const int choice = readInteger("Wybierz urządzenie: ", 0, devicesNum - 1);
 
     const AdbDevice &device = controller_.devices_[choice];
@@ -102,6 +109,8 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
 
     output_ << "Przesyłam na komputer pliki z " << remote << " do " << target
             << " spełniające warunek: " << condition << "\n";
+
+    newDirectory(target);
 
     output_.flush();
 
