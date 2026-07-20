@@ -22,8 +22,6 @@ qt_add_executable(android_files_backup
 
     src/process/process_runner.cpp
 
-    src/result/result.cpp
-
     src/adb/adb_device.cpp
     src/adb/adb_client.cpp
 

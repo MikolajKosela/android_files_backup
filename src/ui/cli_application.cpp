@@ -3,7 +3,9 @@
 #include "android_files_backup/application/application_controller.h"
 #include "android_files_backup/backup/backup_progress.h"
 #include "android_files_backup/errors/exceptions.h"
+#include "android_files_backup/result/result.h"
 #include <qglobal.h>
+#include <qstringliteral.h>
 
 namespace android_files_backup {
 
@@ -98,13 +100,14 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
                                                         QString target,
                                                         QString condition) {
 
-    output_ << "Kopiuję pliki z " << remote << " do " << target
+    output_ << "Przesyłam na komputer pliki z " << remote << " do " << target
             << " spełniające warunek: " << condition << "\n";
 
     output_.flush();
 
+    BackupResult result;
     try {
-        controller_.createFilesPull_functionForTesting(
+        result = controller_.createFilesPull_functionForTesting(
             remote, target, condition, [this](const BackupProgress &progress) {
                 output_ << "\r\x1B[2KPostęp: " << progress.processedFiles
                         << " / " << progress.totalFiles << " "
@@ -115,13 +118,56 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
     } catch (const AdbException &error) {
         error_ << "\nBłąd komunikacji adb: " << error.what();
         error_.flush();
+    } catch (const BackupException &error) {
+        error_ << "Doszło do błędu w trakcie wykonywania przesyłu plików\n"
+               << error.what();
+        error_.flush();
 
-        output_ << "Nie udało się wykonać kopii zapasowej\n---------- \n";
+        output_ << "Nie udało się wykonać przesyłu plików\n---------- \n";
         output_.flush();
         return;
     }
 
-    output_ << "Pomyślnie wykonano kopię :) \n---------- \n";
+    if (result.success()) {
+        output_ << "\nPomyślnie wykonano przesył plików :) \n";
+        output_ << "Nienapotkano żadnych błędów \n";
+        output_ << QStringLiteral("Przeskanowano tyle plików: %1 \nSkopiowano "
+                                  "tyle plików: %2 \n")
+                       .arg(result.scannedFiles)
+                       .arg(result.copiedFiles);
+    } else {
+        output_ << "\nWykonano przesył plików, jednak napotkano na problemy \n";
+        output_ << QStringLiteral(
+                       "Przeskanowano tyle plików: %1 \nSkopiowano "
+                       "tyle plików: %2 \nPominięto tyle plików: %3 \n")
+                       .arg(result.scannedFiles)
+                       .arg(result.copiedFiles)
+                       .arg(result.skippedFiles);
+        output_ << "Błędy podczas przesyłania: " << result.errors.size()
+                << "\n";
+        const auto errorsCnt = result.errors.size();
+
+        if (errorsCnt > 10) {
+            output_ << "Lista pierwszych 10 błędów: \n";
+            for (auto i = 0; i < 10; i++) {
+                const QString &err = result.errors[i];
+
+                output_ << "[" << i + 1 << "]" << " -> " << err << "\n";
+            }
+            output_ << "... Pozostało tyle błędów do oczytania: "
+                    << errorsCnt - 10 << "\n";
+            output_.flush();
+        } else {
+            output_ << "Lista błędów: \n";
+            for (auto i = 0; i < result.errors.size(); i++) {
+                const auto &err = result.errors[i];
+                output_ << "[" << i + 1 << "]" << " -> " << err << "\n";
+            }
+        }
+        output_.flush();
+    }
+    output_ << "----------\n\n";
+
     output_.flush();
 }
 

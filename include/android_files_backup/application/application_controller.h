@@ -3,6 +3,7 @@
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/backup/backup_service.h"
+#include "android_files_backup/result/result.h"
 
 #include <QList>
 #include <QString>
@@ -24,7 +25,7 @@ class ApplicationController {
 
     [[nodiscard]] bool hasSelectedDevice() const;
 
-    void createFilesPull_functionForTesting(
+    [[nodiscard]] BackupResult createFilesPull_functionForTesting(
         const QString remote, const QString target, const QString condition,
         const ProgressCallback &progressCallback);
 
