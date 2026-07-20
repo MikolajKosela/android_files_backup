@@ -1,14 +1,16 @@
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/errors/exceptions.h"
 #include "android_files_backup/process/process_runner.h"
+#include "android_files_backup/result/result.h"
 
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QString>
 #include <QStringList>
 #include <qfileinfo.h>
 #include <qglobal.h>
 #include <qnamespace.h>
-#include <stdexcept>
 
 namespace android_files_backup {
 
@@ -17,8 +19,8 @@ AdbDevice parseDeviceLine(const QString &line) {
         line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
     if (parts.size() < 2) {
-        throw std::runtime_error(
-            QString("Nieprawidłowy wierdz adb: %1").arg(line).toStdString());
+        throw AdbException(
+            QString("Nieprawidłowy wiersz adb: %1 \n").arg(line));
     }
 
     AdbDevice device;
@@ -59,43 +61,45 @@ AdbDevice parseDeviceLine(const QString &line) {
     return device;
 }
 
-ProcessResult AdbClient::runForDevice(const AdbDevice &device,
-                                      const QStringList &arguments) const {
+QStringList AdbClient::runForDevice(const AdbDevice &device,
+                                    const QStringList &arguments) const {
     QStringList argumentsWithDevice = {"-s", device.serial};
     argumentsWithDevice.append(arguments);
 
-    const ProcessResult result = runProcess("adb", argumentsWithDevice);
+    const ProcessResult processResult = runProcess("adb", argumentsWithDevice);
 
-    if (!result.success()) {
-        qInfo() << "Wystąpił błąd przy wykonywaniu komendy:";
+    if (!processResult.success()) {
         QString commend = "adb";
-        for (const auto &arg : argumentsWithDevice) {
+        for (const auto &arg : arguments) {
             commend += " " + arg;
         }
 
-        qInfo().noquote() << commend;
-        if (QString info = result.standardOutput; !info.isEmpty()) {
-            qInfo().noquote() << info;
-        }
-        if (QString info = result.standardError; !info.isEmpty()) {
-            qInfo().noquote() << info;
-        }
+        throw AdbException(
+            QStringLiteral("Wystąpił błąd podczas wykonywania komendy\n "
+                           "%1 \n dla urządzenia %2 \nLogi: %3 %4 \n")
+                .arg(commend)
+                .arg(QString(device.serial))
+                .arg(processResult.standardOutput)
+                .arg(processResult.standardError));
     }
-
-    return result;
+    return processResult.standardOutput.split('\n', Qt::SkipEmptyParts);
 }
 
 QList<AdbDevice> AdbClient::listDevices() const {
-    const ProcessResult result = runProcess("adb", {"devices", "-l"});
+    const ProcessResult processResult = runProcess("adb", {"devices", "-l"});
 
-    if (!result.success()) {
-        throw std::runtime_error(result.standardError.toStdString());
+    if (!processResult.success()) {
+        throw AdbException(
+            QStringLiteral(
+                "Wystąpił błąd podczas listowania urządzeń \nLogi: %1 %2 \n")
+                .arg(processResult.standardOutput)
+                .arg(processResult.standardError));
     }
 
     QList<AdbDevice> devices;
 
     const QStringList lines =
-        result.standardOutput.split('\n', Qt::SkipEmptyParts);
+        processResult.standardOutput.split('\n', Qt::SkipEmptyParts);
 
     for (const QString &rawLine : lines) {
         const QString line = rawLine.trimmed();

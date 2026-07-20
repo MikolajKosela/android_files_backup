@@ -16,10 +16,8 @@ void BackupService::performFilesPull_functionForTesting(
     const ProgressCallback &progressCallback) {
     newDirectory(target);
 
-    const ProcessResult result =
+    const QStringList files =
         adbClient.runForDevice(device, {"shell", "find", remote});
-
-    auto files = result.standardOutput.split('\n', Qt::SkipEmptyParts);
 
     const qsizetype total = files.size();
 
@@ -41,8 +39,7 @@ void BackupService::performFilesPull_functionForTesting(
         const QString fileName = QFileInfo(file).fileName();
 
         if (pattern.match(fileName).hasMatch()) {
-            const ProcessResult pullResult =
-                adbClient.runForDevice(device, {"pull", "-a", file, target});
+            adbClient.runForDevice(device, {"pull", "-a", file, target});
         }
     }
 }

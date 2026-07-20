@@ -2,6 +2,7 @@
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/application/application_controller.h"
 #include "android_files_backup/backup/backup_progress.h"
+#include "android_files_backup/errors/exceptions.h"
 #include <qglobal.h>
 
 namespace android_files_backup {
@@ -102,14 +103,25 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
 
     output_.flush();
 
-    controller_.createFilesPull_functionForTesting(
-        remote, target, condition, [this](const BackupProgress &progress) {
-            output_ << "\r\x1B[2KPostęp: " << progress.processedFiles << " / "
-                    << progress.totalFiles << " " << progress.currentFile;
-            output_.flush();
-        });
+    try {
+        controller_.createFilesPull_functionForTesting(
+            remote, target, condition, [this](const BackupProgress &progress) {
+                output_ << "\r\x1B[2KPostęp: " << progress.processedFiles
+                        << " / " << progress.totalFiles << " "
+                        << progress.currentFile;
+                output_.flush();
+            });
 
-    output_ << "\nPomyślnie wykonano kopię :) \n---------- \n";
+    } catch (const AdbException &error) {
+        error_ << "\nBłąd komunikacji adb: " << error.what();
+        error_.flush();
+
+        output_ << "Nie udało się wykonać kopii zapasowej\n---------- \n";
+        output_.flush();
+        return;
+    }
+
+    output_ << "Pomyślnie wykonano kopię :) \n---------- \n";
     output_.flush();
 }
 
