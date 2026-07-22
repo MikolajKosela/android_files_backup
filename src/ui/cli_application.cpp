@@ -8,9 +8,17 @@
 #include <QDir>
 #include <qfileinfo.h>
 #include <qglobal.h>
+#include <qhashfunctions.h>
 #include <qstringliteral.h>
 
 namespace android_files_backup {
+
+void CliApplication::clearScreen() {
+    output_ << "\x1B[2J\x1B[3J\x1B[H";
+    //"\x1B[2J\x1B[H";
+    output_ << displayDespiteCleaning;
+    output_.flush();
+}
 
 CliApplication::CliApplication(ApplicationController &controller)
     : controller_(controller), input_(stdin), output_(stdout), error_(stderr) {}
@@ -53,6 +61,7 @@ int CliApplication::readInteger(const QString &prompt, int minimun,
             error_ << "Wartość musi być z zakresu: " << minimun << " - "
                    << maximum << "\n";
             error_.flush();
+            continue;
         }
 
         return value;
@@ -113,9 +122,7 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
                                                         QString target,
                                                         QString condition) {
 
-    output_ << "Przesyłam na komputer pliki z " << remote << " do " << target
-            << " spełniające warunek: " << condition << "\n";
-
+    clearScreen();
     newDirectory(target);
 
     output_.flush();
@@ -144,14 +151,15 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
     }
 
     if (result.success()) {
-        output_ << "\nPomyślnie wykonano przesył plików :) \n";
+        output_ << "\n\nPomyślnie wykonano przesył plików :) \n";
         output_ << "Nienapotkano żadnych błędów \n";
         output_ << QStringLiteral("Przeskanowano tyle plików: %1 \nSkopiowano "
                                   "tyle plików: %2 \n")
                        .arg(result.scannedFiles)
                        .arg(result.copiedFiles);
     } else {
-        output_ << "\nWykonano przesył plików, jednak napotkano na problemy \n";
+        output_
+            << "\n\nWykonano przesył plików, jednak napotkano na problemy \n";
         output_ << QStringLiteral(
                        "Przeskanowano tyle plików: %1 \nSkopiowano "
                        "tyle plików: %2 \nPominięto tyle plików: %3 \n")
@@ -187,33 +195,48 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
 }
 
 void CliApplication::createCustomFilesPull_functionForTesting() {
-    output_ << "**Przesyłanie plików na komputer**\n";
-    output_.flush();
+    displayDespiteCleaning = "";
 
-    const QString destination = chooseLocalDirectory();
-    output_ << "Wybrano katalog: " << destination << "\n";
+    displayDespiteCleaning += "**Przesyłanie plików na komputer**\n";
+    output_ << displayDespiteCleaning;
     output_.flush();
 
     const QString remote = chooseRemoteDirectory();
-    output_ << "Wybrano katalog: " << remote << "\n";
+    displayDespiteCleaning += "Prześlij z: " + remote + "\n";
+    output_ << displayDespiteCleaning;
     output_.flush();
 
-    QString pattern = readLine("Podaj wzorzec: ");
-    output_ << "\n**Rozpoczynam procedurę przesyłania plików na komputer**\n";
+    const QString destination = chooseLocalDirectory();
+    displayDespiteCleaning += "Zapisz w: " + destination + "\n";
+    output_ << displayDespiteCleaning;
+    output_.flush();
+
+    const QString pattern = choosePattern();
+    displayDespiteCleaning += "Wzorzec: " + pattern;
+
+    displayDespiteCleaning +=
+        "\n**Rozpoczynam procedurę przesyłania plików na komputer**\n";
+    output_ << displayDespiteCleaning;
     output_.flush();
 
     createFilesPull_functionForTesting(remote, destination, pattern);
+    displayDespiteCleaning = "";
 }
 
 QString CliApplication::chooseLocalDirectory() {
     QString currentPath = QDir::currentPath();
 
     while (true) {
+        clearScreen();
+        output_ << "Poczekaj, aż program przeskanuje ten katalog";
+        output_.flush();
+
         QDir directory(currentPath);
 
         const QFileInfoList directiories = directory.entryInfoList(
             QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
 
+        clearScreen();
         output_ << "\n**Zapisz pliki w katalogu:**\n"
                 << "*Przydatne skróty: \n"
                 << " 0 Katalog domowy\n"
@@ -283,8 +306,12 @@ QString CliApplication::chooseRemoteDirectory() {
     QString currentPath = "/sdcard";
 
     while (true) {
+        clearScreen();
+        output_ << "Poczekaj, aż program przeskanuje ten katalog";
+        output_.flush();
         const QStringList list = controller_.listRemoteDirectories(currentPath);
 
+        clearScreen();
         output_ << "\n**Wybierz katalog w pamięci telefonu:**\n"
                 << "*Przydatne skróty: \n"
                 << " 0 Pamięć wewnętrzna \n"
@@ -319,6 +346,19 @@ QString CliApplication::chooseRemoteDirectory() {
         currentPath = list[choice - 3];
     }
     return currentPath;
+}
+
+[[nodiscard]] QString CliApplication::choosePattern() {
+    clearScreen();
+    QString result =
+        readLine("Podaj wzorzec (wpisz . aby przesłać wszystkie pliki): ");
+
+    /*
+    if (result == ".") {
+        return {};
+    }
+    */
+    return result;
 }
 
 } // namespace android_files_backup

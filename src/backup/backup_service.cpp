@@ -53,7 +53,7 @@ BackupResult BackupService::performFilesPull_functionForTesting(
 
         result.scannedFiles++;
 
-        // qInfo().noquote() << file;
+        // qInfo().noquote() << QFileInfo(file).fileName();
         // qInfo().noquote() << file;
 
         const QString fileName = QFileInfo(file).fileName();

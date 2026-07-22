@@ -12,6 +12,8 @@ class CliApplication {
     int run();
 
   private:
+    void clearScreen();
+
     void showDevices();
     void choiceDevice();
     void selectDevice(int choice);
@@ -22,6 +24,7 @@ class CliApplication {
 
     [[nodiscard]] QString chooseLocalDirectory();
     [[nodiscard]] QString chooseRemoteDirectory();
+    [[nodiscard]] QString choosePattern();
 
     [[nodiscard]] int readInteger(const QString &prompt, int minimum,
                                   int maximum);
@@ -31,6 +34,8 @@ class CliApplication {
     void printError(const QString &message);
 
     ApplicationController &controller_;
+
+    QString displayDespiteCleaning;
 
     QTextStream input_;
     QTextStream output_;
