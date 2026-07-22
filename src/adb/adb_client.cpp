@@ -8,6 +8,7 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
+#include <qdebug.h>
 #include <qfileinfo.h>
 #include <qglobal.h>
 #include <qnamespace.h>
@@ -66,14 +67,17 @@ QStringList AdbClient::runForDevice(const AdbDevice &device,
     QStringList argumentsWithDevice = {"-s", device.serial};
     argumentsWithDevice.append(arguments);
 
+    QString commend = "adb";
+    for (const auto &arg : arguments) {
+        commend += " " + arg;
+    }
+    /*
+    qInfo() << commend;
+    */
+
     const ProcessResult processResult = runProcess("adb", argumentsWithDevice);
 
     if (!processResult.success()) {
-        QString commend = "adb";
-        for (const auto &arg : arguments) {
-            commend += " " + arg;
-        }
-
         throw AdbException(
             QStringLiteral("Wystąpił błąd podczas wykonywania komendy\n "
                            "%1 \n dla urządzenia %2 \nLogi: %3 %4 \n")
@@ -131,6 +135,50 @@ AdbDeviceState AdbClient::getDeviceState(const QString &serial) const {
     const QString state = result.standardOutput.trimmed();
 
     return parseDeviceState(state);
+}
+
+QStringList AdbClient::listDirectories(const AdbDevice &device,
+                                       const QString &root) const {
+    // const QStringList result = runForDevice(
+    // device, {"shell", "sh", "-c", "'cd " + root + " && realpath */'"});
+    QStringList paths;
+    try {
+        paths = runForDevice(device, {"shell", "ls", "-d", root + "/*/"});
+    } catch (const AdbException &err) {
+        const QString message = QString::fromUtf8(err.what());
+
+        if (message.contains("No such file or directory")) {
+            return {};
+        }
+
+        throw;
+    }
+
+    QStringList list;
+    list.reserve(paths.size());
+
+    for (QString path : paths) {
+        while (path.endsWith('/'))
+            path.chop(1);
+
+        list.append(path);
+    }
+    return list;
+}
+
+[[nodiscard]] QString
+AdbClient::getParentDirectory(const AdbDevice &device,
+                              const QString &child) const {
+    const QStringList results = runForDevice(
+        device, {"shell", "sh", "-c", "'cd " + child + " && cd .. && pwd'"});
+
+    QString path = results[0];
+
+    if (path.endsWith('/')) {
+        path.chop(1);
+    }
+
+    return path;
 }
 
 } // namespace android_files_backup

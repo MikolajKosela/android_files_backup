@@ -5,6 +5,8 @@
 #include "android_files_backup/errors/exceptions.h"
 #include "android_files_backup/result/result.h"
 #include "android_files_backup/utils/utils.h"
+#include <QDir>
+#include <qfileinfo.h>
 #include <qglobal.h>
 #include <qstringliteral.h>
 
@@ -15,13 +17,17 @@ CliApplication::CliApplication(ApplicationController &controller)
 
 int CliApplication::run() {
     while (true) {
+
         choiceDevice();
+        /*
         createFilesPull_functionForTesting("/sdcard/DCIM/Screenshots",
                                            "build/test/ang",
                                            "*Diki sownik angielskiego*");
         createFilesPull_functionForTesting("/sdcard/DCIM/Screenshots",
                                            "build/test/niem",
                                            "*Diki sownik niemieckiego*");
+        */
+        createCustomFilesPull_functionForTesting();
         return 0;
     }
 }
@@ -178,6 +184,141 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
     output_ << "----------\n\n";
 
     output_.flush();
+}
+
+void CliApplication::createCustomFilesPull_functionForTesting() {
+    output_ << "**Przesyłanie plików na komputer**\n";
+    output_.flush();
+
+    const QString destination = chooseLocalDirectory();
+    output_ << "Wybrano katalog: " << destination << "\n";
+    output_.flush();
+
+    const QString remote = chooseRemoteDirectory();
+    output_ << "Wybrano katalog: " << remote << "\n";
+    output_.flush();
+
+    QString pattern = readLine("Podaj wzorzec: ");
+    output_ << "\n**Rozpoczynam procedurę przesyłania plików na komputer**\n";
+    output_.flush();
+
+    createFilesPull_functionForTesting(remote, destination, pattern);
+}
+
+QString CliApplication::chooseLocalDirectory() {
+    QString currentPath = QDir::currentPath();
+
+    while (true) {
+        QDir directory(currentPath);
+
+        const QFileInfoList directiories = directory.entryInfoList(
+            QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
+
+        output_ << "\n**Zapisz pliki w katalogu:**\n"
+                << "*Przydatne skróty: \n"
+                << " 0 Katalog domowy\n"
+                << "\n*Bieżący katalog: \n"
+                << currentPath << ":\n"
+                << " 1. . (Wybierz ten katalog)\n"
+                << " 2. .. (Przejdź wyżej)\n";
+
+        for (qsizetype i = 0; i < directiories.size(); ++i) {
+            output_ << " " << i + 3 << ". " << directiories[i].fileName()
+                    << "\n";
+        }
+
+        output_.flush();
+
+        const int choice = readInteger(
+            "Wybierz opcję: ", 0, static_cast<int>(directiories.size()) + 2);
+
+        if (choice == 0) {
+            currentPath = QDir::homePath();
+            continue;
+        }
+
+        if (choice == 1) {
+            return currentPath;
+        }
+
+        if (choice == 2) {
+            QDir parent(currentPath);
+
+            if (parent.cdUp()) {
+                currentPath = parent.absolutePath();
+            }
+
+            continue;
+        }
+
+        currentPath = directiories[choice - 3].absoluteFilePath();
+    }
+
+    return currentPath;
+}
+
+QString toDisplayPath(QString path) {
+    static const QStringList internalStoragePrefixes = {"/storage/emulated/0",
+                                                        "/sdcard"};
+
+    for (const QString &prefix : internalStoragePrefixes) {
+        if (path == prefix) {
+            return "Pamięć wewnętrzna";
+        }
+
+        if (path.startsWith(prefix + '/')) {
+            path.replace(0, prefix.size(), "Pamięć wewnętrzna");
+            return path;
+        }
+    }
+
+    if (path.size() == 0) {
+        path = "/";
+    }
+
+    return path;
+}
+
+QString CliApplication::chooseRemoteDirectory() {
+    QString currentPath = "/sdcard";
+
+    while (true) {
+        const QStringList list = controller_.listRemoteDirectories(currentPath);
+
+        output_ << "\n**Wybierz katalog w pamięci telefonu:**\n"
+                << "*Przydatne skróty: \n"
+                << " 0 Pamięć wewnętrzna \n"
+                << "\n*Bieżący katalog: \n"
+                << toDisplayPath(currentPath) << ":\n"
+                << " 1. . (Wybierz ten katalog)\n"
+                << " 2. .. (Przejdź wyżej)\n";
+
+        for (qsizetype i = 0; i < list.size(); ++i) {
+            output_ << " " << i + 3 << ". " << QFileInfo(list[i]).fileName()
+                    << "\n";
+        }
+        output_.flush();
+
+        const int choice = readInteger("Wybierz opcję: ", 0,
+                                       static_cast<int>(list.size()) + 2);
+
+        if (choice == 0) {
+            currentPath = "/sdcard";
+            continue;
+        }
+
+        if (choice == 1) {
+            return currentPath;
+        }
+
+        if (choice == 2) {
+            currentPath = controller_.getRemoteParentDirectory(currentPath);
+            continue;
+        }
+
+        currentPath = list[choice - 3];
+    }
+    return currentPath;
 }
 
 } // namespace android_files_backup

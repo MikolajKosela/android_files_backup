@@ -18,6 +18,10 @@ class CliApplication {
 
     void createFilesPull_functionForTesting(QString remote, QString target,
                                             QString condition);
+    void createCustomFilesPull_functionForTesting();
+
+    [[nodiscard]] QString chooseLocalDirectory();
+    [[nodiscard]] QString chooseRemoteDirectory();
 
     [[nodiscard]] int readInteger(const QString &prompt, int minimum,
                                   int maximum);

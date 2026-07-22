@@ -23,6 +23,10 @@ class ApplicationController {
 
     void selectDevice(const QString &serial);
 
+    QStringList listRemoteDirectories(const QString &root) const;
+
+    QString getRemoteParentDirectory(const QString &child) const;
+
     [[nodiscard]] bool hasSelectedDevice() const;
 
     [[nodiscard]] BackupResult createFilesPull_functionForTesting(

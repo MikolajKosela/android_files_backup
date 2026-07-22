@@ -52,4 +52,22 @@ BackupResult ApplicationController::createFilesPull_functionForTesting(
     return result;
 }
 
+QStringList
+ApplicationController::listRemoteDirectories(const QString &root) const {
+    if (hasSelectedDevice()) {
+        return adbClient_.listDirectories(usedDevice_.value(), root);
+    } else {
+        throw BackupException("Niewybrano urządzenia\n");
+    }
+}
+
+QString
+ApplicationController::getRemoteParentDirectory(const QString &child) const {
+    if (hasSelectedDevice()) {
+        return adbClient_.getParentDirectory(usedDevice_.value(), child);
+    } else {
+        throw BackupException("Niewybrano urządzenia\n");
+    }
+}
+
 } // namespace android_files_backup
