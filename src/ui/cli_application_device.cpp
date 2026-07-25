@@ -3,6 +3,10 @@
 namespace android_files_backup {
 
 void CliApplication::showDevices() {
+    clearScreen();
+
+    output_ << "**Wybór urządzenia**\n";
+
     controller_.refreshDevices();
 
     const auto &devices = controller_.devices();
@@ -43,6 +47,8 @@ void CliApplication::choiceDevice() {
     output_ << "Wybrano " << device.serial << " " << device.model
             << "\n---------- \n";
     output_.flush();
+
+    waitForEnter();
 }
 
 } // namespace android_files_backup

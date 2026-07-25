@@ -107,6 +107,8 @@ void CliApplication::createCustomFilesPull_functionForTesting() {
 
     createFilesPull_functionForTesting(remote, destination, pattern);
     displayDespiteCleaning = "";
+
+    waitForEnter();
 }
 
 [[nodiscard]] QString CliApplication::choosePattern() {

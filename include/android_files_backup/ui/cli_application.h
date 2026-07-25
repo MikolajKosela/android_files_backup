@@ -13,7 +13,10 @@ class CliApplication {
 
   private:
     void clearScreen();
+    void showCaption(const QString caption);
+    void waitForEnter();
 
+    int showMainMenu();
     void showDevices();
     void choiceDevice();
     void selectDevice(int choice);

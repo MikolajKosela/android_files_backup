@@ -9,6 +9,18 @@ void CliApplication::clearScreen() {
     output_.flush();
 }
 
+void CliApplication::waitForEnter() {
+    output_ << "\nNaciśnij Enter, aby kontynuować...";
+    output_.flush();
+
+    input_.readLine();
+}
+
+void CliApplication::showCaption(const QString caption) {
+    output_ << caption;
+    output_.flush();
+}
+
 int CliApplication::readInteger(const QString &prompt, int minimun,
                                 int maximum) {
     while (true) {
