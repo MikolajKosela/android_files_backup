@@ -21,6 +21,8 @@ class AdbClient {
 
     [[nodiscard]] QString getParentDirectory(const AdbDevice &device,
                                              const QString &child) const;
+
+    [[nodiscard]] QStringList listMemoryCards(const AdbDevice &device) const;
 };
 
 } // namespace android_files_backup

@@ -181,4 +181,19 @@ AdbClient::getParentDirectory(const AdbDevice &device,
     return path;
 }
 
+[[nodiscard]] QStringList
+AdbClient::listMemoryCards(const AdbDevice &device) const {
+    const QStringList paths =
+        runForDevice(device, {"shell", "ls", "-d", "/storage/*"});
+
+    QStringList results;
+
+    for (const auto &path : paths) {
+        if (path != "/storage/emulated" && path != "/storage/self") {
+            results.append(path);
+        }
+    }
+    return results;
+}
+
 } // namespace android_files_backup

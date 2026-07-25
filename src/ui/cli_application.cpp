@@ -280,18 +280,25 @@ QString CliApplication::chooseLocalDirectory() {
     return currentPath;
 }
 
-QString toDisplayPath(QString path) {
+QString toDisplayPath(QString path, QStringList memoryCards) {
     static const QStringList internalStoragePrefixes = {"/storage/emulated/0",
                                                         "/sdcard"};
 
     for (const QString &prefix : internalStoragePrefixes) {
         if (path == prefix) {
-            return "Pamięć wewnętrzna";
+            return "Pamięć wewnętrzna aka /sdcard lub /storage/emulated/0";
         }
 
         if (path.startsWith(prefix + '/')) {
             path.replace(0, prefix.size(), "Pamięć wewnętrzna");
             return path;
+        }
+    }
+
+    for (const QString &memoryCard : memoryCards) {
+        if (path == memoryCard) {
+            return "Karta pamięci " + QFileInfo(path).fileName() + " aka " +
+                   path;
         }
     }
 
@@ -314,9 +321,16 @@ QString CliApplication::chooseRemoteDirectory() {
         clearScreen();
         output_ << "\n**Wybierz katalog w pamięci telefonu:**\n"
                 << "*Przydatne skróty: \n"
-                << " 0 Pamięć wewnętrzna \n"
-                << "\n*Bieżący katalog: \n"
-                << toDisplayPath(currentPath) << ":\n"
+                << " 0 Pamięć wewnętrzna \n";
+
+        const QStringList memoryCards = controller_.listMemoryCards();
+        for (auto i = 0; i < memoryCards.size(); i++) {
+            output_ << " " << i * (-1) - 1 << ". Karta Pamięci "
+                    << QFileInfo(memoryCards[i]).fileName() << "\n";
+        }
+
+        output_ << "\n*Bieżący katalog: \n"
+                << toDisplayPath(currentPath, memoryCards) << ":\n"
                 << " 1. . (Wybierz ten katalog)\n"
                 << " 2. .. (Przejdź wyżej)\n";
 
@@ -324,10 +338,17 @@ QString CliApplication::chooseRemoteDirectory() {
             output_ << " " << i + 3 << ". " << QFileInfo(list[i]).fileName()
                     << "\n";
         }
+
         output_.flush();
 
-        const int choice = readInteger("Wybierz opcję: ", 0,
-                                       static_cast<int>(list.size()) + 2);
+        const int choice = readInteger(
+            "Wybierz opcję: ", static_cast<int>(memoryCards.size()) * (-1),
+            static_cast<int>(list.size()) + 2);
+
+        if (choice < 0) {
+            currentPath = memoryCards[(-1) * choice - 1];
+            continue;
+        }
 
         if (choice == 0) {
             currentPath = "/sdcard";
@@ -351,7 +372,7 @@ QString CliApplication::chooseRemoteDirectory() {
 [[nodiscard]] QString CliApplication::choosePattern() {
     clearScreen();
     QString result =
-        readLine("Podaj wzorzec (wpisz . aby przesłać wszystkie pliki): ");
+        readLine("Podaj wzorzec (wpisz * aby przesłać wszystkie pliki): ");
 
     /*
     if (result == ".") {

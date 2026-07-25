@@ -70,4 +70,12 @@ ApplicationController::getRemoteParentDirectory(const QString &child) const {
     }
 }
 
+[[nodiscard]] QStringList ApplicationController::listMemoryCards() const {
+    if (hasSelectedDevice()) {
+        return adbClient_.listMemoryCards(usedDevice_.value());
+    } else {
+        throw BackupException("Niewybrano urządzenia\n");
+    }
+}
+
 } // namespace android_files_backup

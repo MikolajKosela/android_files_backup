@@ -33,6 +33,8 @@ class ApplicationController {
         const QString remote, const QString target, const QString condition,
         const ProgressCallback &progressCallback);
 
+    [[nodiscard]] QStringList listMemoryCards() const;
+
     AdbClient adbClient_;
     QList<AdbDevice> devices_;
     BackupService backupService_;
