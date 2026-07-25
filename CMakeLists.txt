@@ -19,6 +19,11 @@ qt_add_executable(android_files_backup
     src/backup/backup_service.cpp
 
     src/ui/cli_application.cpp
+    src/ui/cli_application_backup.cpp
+    src/ui/cli_application_device.cpp
+    src/ui/cli_application_input_output.cpp
+    src/ui/cli_application_local_navigation.cpp
+    src/ui/cli_application_remote_navigation.cpp
 
     src/process/process_runner.cpp
 
