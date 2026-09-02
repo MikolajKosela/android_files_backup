@@ -21,7 +21,8 @@ BackupService::performFilesPull_functionForTesting(
     const ProgressCallback &progressCallback) {
   BackupResult result;
 
-  const auto files = adbClient.runForDevice(device, {"shell", "find", remote});
+  const auto files = adbClient.findFiles(device, remote);
+  // adbClient.runForDevice(device, {"shell", "find", remote});
 
   if (!files.has_value()) {
     return std::unexpected("Błąd:\n" + files.error());
@@ -43,8 +44,7 @@ BackupService::performFilesPull_functionForTesting(
     const QString fileName = QFileInfo(file).fileName();
 
     if (pattern.match(fileName).hasMatch()) {
-      const auto pullResult =
-          adbClient.runForDevice(device, {"pull", "-a", file, target});
+      const auto pullResult = adbClient.pullFile(device, file, target);
 
       if (!pullResult.has_value()) {
         result.skippedFiles++;

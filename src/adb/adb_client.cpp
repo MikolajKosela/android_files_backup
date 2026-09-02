@@ -203,4 +203,27 @@ std::expected<QStringList, QString> AdbClient::listDirectories(
   return results;
 }
 
+[[nodiscard]] std::expected<QStringList, QString> AdbClient::findFiles(
+    const AdbDevice &device, const QString &remote) const {
+  const auto result = runForDevice(device, {"shell", "find", remote});
+
+  if (!result.has_value()) {
+    return std::unexpected("Błąd przy znalezieniu plików z podanej ścieżki\n" +
+                           result.error());
+  }
+
+  return *result;
+}
+
+[[nodiscard]] std::expected<QStringList, QString> AdbClient::pullFile(
+    const AdbDevice &device, const QString &file, const QString &target) const {
+  const auto result = runForDevice(device, {"pull", "-a", file, target});
+
+  if (!result.has_value()) {
+    return std::unexpected("Błąd przy kopiowaniu pliku\n" + result.error());
+  }
+
+  return *result;
+}
+
 }  // namespace android_files_backup

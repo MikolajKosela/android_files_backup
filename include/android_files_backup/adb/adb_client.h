@@ -9,10 +9,11 @@
 namespace android_files_backup {
 
 class AdbClient {
- public:
+ private:
   std::expected<QStringList, QString> runForDevice(
       const AdbDevice &device, const QStringList &arguments) const;
 
+ public:
   [[nodiscard]] std::expected<QList<AdbDevice>, QString> listDevices() const;
 
   [[nodiscard]] std::expected<AdbDeviceState, QString> getDeviceState(
@@ -26,6 +27,13 @@ class AdbClient {
 
   [[nodiscard]] std::expected<QStringList, QString> listMemoryCards(
       const AdbDevice &device) const;
+
+  [[nodiscard]] std::expected<QStringList, QString> findFiles(
+      const AdbDevice &device, const QString &remote) const;
+
+  [[nodiscard]] std::expected<QStringList, QString> pullFile(
+      const AdbDevice &device, const QString &file,
+      const QString &target) const;
 };
 
 }  // namespace android_files_backup
