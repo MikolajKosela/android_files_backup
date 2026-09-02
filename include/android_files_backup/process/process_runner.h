@@ -1,9 +1,9 @@
 #pragma once
 
-#include "android_files_backup/result/result.h"
-
 #include <QString>
 #include <QStringList>
+
+#include "android_files_backup/result/result.h"
 
 namespace android_files_backup {
 
@@ -11,4 +11,4 @@ namespace android_files_backup {
                                        const QStringList &arguments,
                                        int timeoutMs = 30'000);
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

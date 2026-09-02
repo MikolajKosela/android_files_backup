@@ -6,35 +6,35 @@
 namespace android_files_backup {
 
 enum class AdbDeviceState {
-    Device,
-    Unauthorized,
-    Offline,
-    NoPermissions,
-    Bootloader,
-    Recovery,
-    Sideload,
-    Unknown,
-    Disconnected
+  Device,
+  Unauthorized,
+  Offline,
+  NoPermissions,
+  Bootloader,
+  Recovery,
+  Sideload,
+  Unknown,
+  Disconnected
 };
 
 struct AdbDevice {
-    QString serial;
-    AdbDeviceState state = AdbDeviceState::Unknown;
+  QString serial;
+  AdbDeviceState state = AdbDeviceState::Unknown;
 
-    QString product;
-    QString model;
-    QString deviceName;
-    QString transportId;
+  QString product;
+  QString model;
+  QString deviceName;
+  QString transportId;
 
-    QMap<QString, QString> properties;
+  QMap<QString, QString> properties;
 
-    [[nodiscard]] bool isUsable() const {
-        return state == AdbDeviceState::Device;
-    }
+  [[nodiscard]] bool isUsable() const {
+    return state == AdbDeviceState::Device;
+  }
 
-    QString printableDevice() const;
+  QString printableDevice() const;
 };
 
 [[nodiscard]] AdbDeviceState parseDeviceState(const QString &state);
 [[nodiscard]] QString deviceStateToString(AdbDeviceState state);
-} // namespace android_files_backup
+}  // namespace android_files_backup

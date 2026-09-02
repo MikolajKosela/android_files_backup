@@ -1,98 +1,69 @@
 #include "android_files_backup/backup/backup_service.h"
-#include "android_files_backup/adb/adb_client.h"
-#include "android_files_backup/adb/adb_device.h"
-#include "android_files_backup/backup/backup_progress.h"
-#include "android_files_backup/errors/exceptions.h"
-#include "android_files_backup/result/result.h"
-#include "android_files_backup/utils/utils.h"
+
+#include <qglobal.h>
 
 #include <QDebug>
 #include <QFileInfo>
-#include <qglobal.h>
+#include <expected>
+
+#include "android_files_backup/adb/adb_client.h"
+#include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/backup/backup_progress.h"
+#include "android_files_backup/result/result.h"
+#include "android_files_backup/utils/utils.h"
 
 namespace android_files_backup {
 
-BackupResult BackupService::performFilesPull_functionForTesting(
+std::expected<BackupResult, QString>
+BackupService::performFilesPull_functionForTesting(
     const AdbClient &adbClient, const AdbDevice &device, const QString remote,
     const QString target, const QString condition,
     const ProgressCallback &progressCallback) {
+  BackupResult result;
 
-    BackupResult result;
+  const auto files = adbClient.runForDevice(device, {"shell", "find", remote});
 
-    QStringList files;
-    try {
-        files = adbClient.runForDevice(device, {"shell", "find", remote});
+  if (!files.has_value()) {
+    return std::unexpected("Błąd:\n" + files.error());
+  }
 
-    } catch (const AdbException &error) {
-        if (const AdbDeviceState &state =
-                adbClient.getDeviceState(device.serial);
-            state != AdbDeviceState::Device) {
-            if (state == AdbDeviceState::Disconnected) {
-                throw BackupException("Urządzenie zostało odłączone\n");
-            } else {
-                throw BackupException(
-                    QStringLiteral("Napotkano problem z urządzeniem. "
-                                   "Jego stan to: %1\n")
-                        .arg(deviceStateToString(state)));
-            }
-        }
+  const qsizetype total = files.value().size();
 
-        throw BackupException(
-            QStringLiteral(
-                "Nie znaleziono podanej ścieżki na wybranym telefonie\n%1")
-                .arg(QString(error.what())));
+  auto pattern =
+      android_files_backup::fromWildCardToRegularExpression(condition);
+
+  for (auto i = 0; i < total; ++i) {
+    const auto file = files.value()[i].trimmed();
+
+    result.scannedFiles++;
+
+    // qInfo().noquote() << QFileInfo(file).fileName();
+    // qInfo().noquote() << file;
+
+    const QString fileName = QFileInfo(file).fileName();
+
+    if (pattern.match(fileName).hasMatch()) {
+      const auto pullResult =
+          adbClient.runForDevice(device, {"pull", "-a", file, target});
+
+      if (!pullResult.has_value()) {
+        result.skippedFiles++;
+        result.errors.append(pullResult.error());
+        continue;
+      }
+
+      result.copiedFiles++;
     }
 
-    const qsizetype total = files.size();
-
-    auto pattern =
-        android_files_backup::fromWildCardToRegularExpression(condition);
-
-    for (auto i = 0; i < total; ++i) {
-        const auto file = files[i].trimmed();
-
-        result.scannedFiles++;
-
-        // qInfo().noquote() << QFileInfo(file).fileName();
-        // qInfo().noquote() << file;
-
-        const QString fileName = QFileInfo(file).fileName();
-
-        if (pattern.match(fileName).hasMatch()) {
-            try {
-                adbClient.runForDevice(device, {"pull", "-a", file, target});
-            } catch (const AdbException &error) {
-
-                if (const AdbDeviceState &state =
-                        adbClient.getDeviceState(device.serial);
-                    state != AdbDeviceState::Device) {
-                    if (state == AdbDeviceState::Disconnected) {
-                        throw BackupException("Urządzenie zostało odłączone\n");
-                    } else {
-                        throw BackupException(
-                            QStringLiteral("Napotkano problem z urządzeniem. "
-                                           "Jego stan to: %1\n")
-                                .arg(deviceStateToString(state)));
-                    }
-                }
-                result.skippedFiles++;
-                result.errors.append(error.what());
-                continue;
-            }
-
-            result.copiedFiles++;
-        }
-
-        if (progressCallback) {
-            progressCallback({.processedFiles = i + 1,
-                              .totalFiles = total,
-                              .currentFile = file});
-        }
+    if (progressCallback) {
+      progressCallback(
+          {.processedFiles = i + 1, .totalFiles = total, .currentFile = file});
     }
-    /*
-    qInfo() << result.copiedFiles << " " << result.scannedFiles << " "
-            << result.skippedFiles;
-    */
-    return result;
+  }
+  /*
+  qInfo() << result.copiedFiles << " " << result.scannedFiles << " "
+          << result.skippedFiles;
+  */
+  return result;
 }
-} // namespace android_files_backup
+}  // namespace android_files_backup

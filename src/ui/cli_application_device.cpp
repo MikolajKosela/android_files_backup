@@ -3,52 +3,52 @@
 namespace android_files_backup {
 
 void CliApplication::showDevices() {
-    clearScreen();
+  clearScreen();
 
-    output_ << "**Wybór urządzenia**\n";
+  output_ << "**Wybór urządzenia**\n";
 
-    controller_.refreshDevices();
+  controller_.refreshDevices();
 
-    const auto &devices = controller_.devices();
+  const auto &devices = controller_.devices();
 
-    if (devices.isEmpty()) {
-        output_ << "Nie znaleziono urządzeń \n";
-        output_.flush();
-
-        return;
-    }
-
-    output_ << "Znalezione urządzenia: \n";
-
-    for (auto i = 0; i < devices.size(); i++) {
-        auto &device = devices[i];
-        output_ << "[" << i << "] " << device.serial << device.model
-                << " state: " << deviceStateToString(device.state) << "\n";
-    }
-
+  if (devices.isEmpty()) {
+    output_ << "Nie znaleziono urządzeń \n";
     output_.flush();
+
+    return;
+  }
+
+  output_ << "Znalezione urządzenia: \n";
+
+  for (auto i = 0; i < devices.size(); i++) {
+    auto &device = devices[i];
+    output_ << "[" << i << "] " << device.serial << device.model
+            << " state: " << deviceStateToString(device.state) << "\n";
+  }
+
+  output_.flush();
 }
 
 void CliApplication::choiceDevice() {
-    showDevices();
+  showDevices();
 
-    int devicesNum = controller_.devices_.size();
+  int devicesNum = controller_.devices_.size();
 
-    if (devicesNum == 0) {
-        return;
-    }
+  if (devicesNum == 0) {
+    return;
+  }
 
-    const int choice = readInteger("Wybierz urządzenie: ", 0, devicesNum - 1);
+  const int choice = readInteger("Wybierz urządzenie: ", 0, devicesNum - 1);
 
-    const AdbDevice &device = controller_.devices_[choice];
+  const AdbDevice &device = controller_.devices_[choice];
 
-    controller_.selectDevice(device.serial);
+  controller_.selectDevice(device.serial);
 
-    output_ << "Wybrano " << device.serial << " " << device.model
-            << "\n---------- \n";
-    output_.flush();
+  output_ << "Wybrano " << device.serial << " " << device.model
+          << "\n---------- \n";
+  output_.flush();
 
-    waitForEnter();
+  waitForEnter();
 }
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

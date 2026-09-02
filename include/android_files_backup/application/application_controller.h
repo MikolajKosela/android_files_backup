@@ -1,45 +1,49 @@
 #pragma once
 
+#include <qlist.h>
+
+#include <QList>
+#include <QString>
+#include <expected>
+#include <optional>
+
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/backup/backup_service.h"
 #include "android_files_backup/result/result.h"
 
-#include <QList>
-#include <QString>
-
-#include <optional>
-#include <qlist.h>
-
 namespace android_files_backup {
 
 class ApplicationController {
-  public:
-    ApplicationController();
+ public:
+  ApplicationController();
 
-    void refreshDevices();
+  void refreshDevices();
 
-    [[nodiscard]] const QList<AdbDevice> &devices() const;
+  [[nodiscard]] const QList<AdbDevice> &devices() const;
 
-    void selectDevice(const QString &serial);
+  void selectDevice(const QString &serial);
 
-    QStringList listRemoteDirectories(const QString &root) const;
+  std::expected<QStringList, QString> listRemoteDirectories(
+      const QString &root) const;
 
-    QString getRemoteParentDirectory(const QString &child) const;
+  std::expected<QString, QString> getRemoteParentDirectory(
+      const QString &child) const;
 
-    [[nodiscard]] bool hasSelectedDevice() const;
+  [[nodiscard]] bool hasSelectedDevice() const;
 
-    [[nodiscard]] BackupResult createFilesPull_functionForTesting(
-        const QString remote, const QString target, const QString condition,
-        const ProgressCallback &progressCallback);
+  [[nodiscard]] std::expected<BackupResult, QString>
+  createFilesPull_functionForTesting(const QString remote, const QString target,
+                                     const QString condition,
+                                     const ProgressCallback &progressCallback);
 
-    [[nodiscard]] QStringList listMemoryCards() const;
+  [[nodiscard]] std::expected<QStringList, QString> listMemoryCards() const;
 
-    AdbClient adbClient_;
-    QList<AdbDevice> devices_;
-    BackupService backupService_;
+  AdbClient adbClient_;
+  QList<AdbDevice> devices_;
+  BackupService backupService_;
 
-    std::optional<AdbDevice> usedDevice_;
+  std::optional<AdbDevice> usedDevice_;
 };
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

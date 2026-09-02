@@ -1,81 +1,88 @@
 #include "android_files_backup/application/application_controller.h"
+
+#include <qnamespace.h>
+
+#include <QDebug>
+#include <expected>
+#include <optional>
+
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/backup/backup_progress.h"
-#include "android_files_backup/errors/exceptions.h"
 #include "android_files_backup/result/result.h"
-
-#include <QDebug>
-#include <optional>
-#include <qnamespace.h>
 
 namespace android_files_backup {
 ApplicationController::ApplicationController() {}
 
 void ApplicationController::refreshDevices() {
-    devices_ = adbClient_.listDevices();
+  if (const auto result = adbClient_.listDevices(); result.has_value()) {
+    devices_ = result.value();
+  }
 }
 
 const QList<AdbDevice> &ApplicationController::devices() const {
-    return devices_;
+  return devices_;
 }
 
 void ApplicationController::selectDevice(const QString &serial) {
-    for (const auto &device : devices_) {
-        if (device.serial == serial && device.isUsable()) {
-            usedDevice_ = device;
-        }
+  for (const auto &device : devices_) {
+    if (device.serial == serial && device.isUsable()) {
+      usedDevice_ = device;
     }
+  }
 }
 
 bool ApplicationController::hasSelectedDevice() const {
-    if (usedDevice_.has_value() && usedDevice_->isUsable()) {
-        return true;
-    }
-    return false;
+  if (usedDevice_.has_value() && usedDevice_->isUsable()) {
+    return true;
+  }
+  return false;
 }
 
-BackupResult ApplicationController::createFilesPull_functionForTesting(
+std::expected<BackupResult, QString>
+ApplicationController::createFilesPull_functionForTesting(
     const QString remote, const QString target, const QString condition,
     const ProgressCallback &progressCallback) {
+  if (!hasSelectedDevice()) {
+    return std::unexpected("Niewybrano urządzenia\n");
+  }
 
-    BackupResult result;
+  const auto result = backupService_.performFilesPull_functionForTesting(
+      adbClient_, usedDevice_.value(), remote, target, condition,
+      progressCallback);
 
-    if (hasSelectedDevice()) {
-        result = backupService_.performFilesPull_functionForTesting(
-            adbClient_, usedDevice_.value(), remote, target, condition,
-            progressCallback);
-    } else {
-        throw BackupException("Niewybrano urządzenia\n");
-    }
+  if (!result.has_value()) {
+    return std::unexpected("Błąd przy wykonywaniu kopii:\n" + result.error());
+  }
 
-    return result;
+  return result.value();
 }
 
-QStringList
+std::expected<QStringList, QString>
 ApplicationController::listRemoteDirectories(const QString &root) const {
-    if (hasSelectedDevice()) {
-        return adbClient_.listDirectories(usedDevice_.value(), root);
-    } else {
-        throw BackupException("Niewybrano urządzenia\n");
-    }
+  if (!hasSelectedDevice()) {
+    return std::unexpected("Niewybrano urządzenia\n");
+  }
+
+  return adbClient_.listDirectories(usedDevice_.value(), root);
 }
 
-QString
-ApplicationController::getRemoteParentDirectory(const QString &child) const {
-    if (hasSelectedDevice()) {
-        return adbClient_.getParentDirectory(usedDevice_.value(), child);
-    } else {
-        throw BackupException("Niewybrano urządzenia\n");
-    }
+std::expected<QString, QString> ApplicationController::getRemoteParentDirectory(
+    const QString &child) const {
+  if (!hasSelectedDevice()) {
+    return std::unexpected("Niewybrano urządzenia\n");
+  }
+
+  return adbClient_.getParentDirectory(usedDevice_.value(), child);
 }
 
-[[nodiscard]] QStringList ApplicationController::listMemoryCards() const {
-    if (hasSelectedDevice()) {
-        return adbClient_.listMemoryCards(usedDevice_.value());
-    } else {
-        throw BackupException("Niewybrano urządzenia\n");
-    }
+[[nodiscard]] std::expected<QStringList, QString>
+ApplicationController::listMemoryCards() const {
+  if (!hasSelectedDevice()) {
+    return std::unexpected("Niewybrano urządzenia\n");
+  }
+
+  return adbClient_.listMemoryCards(usedDevice_.value());
 }
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

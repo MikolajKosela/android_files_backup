@@ -7,37 +7,37 @@ namespace android_files_backup {
 
 ProcessResult runProcess(const QString &program, const QStringList &arguments,
                          int timeoutMs) {
-    QProcess process;
-    ProcessResult result;
+  QProcess process;
+  ProcessResult result;
 
-    process.start(program, arguments);
+  process.start(program, arguments);
 
-    result.started = process.waitForStarted();
+  result.started = process.waitForStarted();
 
-    if (!result.started) {
-        result.standardError = process.errorString();
-        return result;
-    }
+  if (!result.started) {
+    result.standardError = process.errorString();
+    return result;
+  }
 
-    result.finished = process.waitForFinished(timeoutMs);
+  result.finished = process.waitForFinished(timeoutMs);
 
-    if (!result.finished) {
-        process.kill();
-        process.waitForFinished();
+  if (!result.finished) {
+    process.kill();
+    process.waitForFinished();
 
-        result.standardError = QStringLiteral("Przekroczono limit czasu: ") +
-                               process.errorString();
-
-        return result;
-    }
-
-    result.exitCode = process.exitCode();
-
-    result.standardOutput = QString::fromUtf8(process.readAllStandardOutput());
-
-    result.standardError = QString::fromUtf8(process.readAllStandardError());
+    result.standardError =
+        QStringLiteral("Przekroczono limit czasu: ") + process.errorString();
 
     return result;
+  }
+
+  result.exitCode = process.exitCode();
+
+  result.standardOutput = QString::fromUtf8(process.readAllStandardOutput());
+
+  result.standardError = QString::fromUtf8(process.readAllStandardError());
+
+  return result;
 }
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

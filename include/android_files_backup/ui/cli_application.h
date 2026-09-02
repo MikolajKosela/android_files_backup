@@ -1,48 +1,48 @@
 #pragma once
 
-#include "android_files_backup/application/application_controller.h"
-
 #include <QTextStream>
+
+#include "android_files_backup/application/application_controller.h"
 
 namespace android_files_backup {
 
 class CliApplication {
-  public:
-    explicit CliApplication(ApplicationController &controller);
-    int run();
+ public:
+  explicit CliApplication(ApplicationController &controller);
+  int run();
 
-  private:
-    void clearScreen();
-    void showCaption(const QString caption);
-    void waitForEnter();
+ private:
+  void clearScreen();
+  void showCaption(const QString caption);
+  void waitForEnter();
 
-    int showMainMenu();
-    void showDevices();
-    void choiceDevice();
-    void selectDevice(int choice);
+  int showMainMenu();
+  void showDevices();
+  void choiceDevice();
+  void selectDevice(int choice);
 
-    void createFilesPull_functionForTesting(QString remote, QString target,
-                                            QString condition);
-    void createCustomFilesPull_functionForTesting();
+  void createFilesPull_functionForTesting(QString remote, QString target,
+                                          QString condition);
+  void createCustomFilesPull_functionForTesting();
 
-    [[nodiscard]] QString chooseLocalDirectory();
-    [[nodiscard]] QString chooseRemoteDirectory();
-    [[nodiscard]] QString choosePattern();
+  [[nodiscard]] QString chooseLocalDirectory();
+  [[nodiscard]] QString chooseRemoteDirectory();
+  [[nodiscard]] QString choosePattern();
 
-    [[nodiscard]] int readInteger(const QString &prompt, int minimum,
-                                  int maximum);
+  [[nodiscard]] int readInteger(const QString &prompt, int minimum,
+                                int maximum);
 
-    [[nodiscard]] QString readLine(const QString &prompt);
+  [[nodiscard]] QString readLine(const QString &prompt);
 
-    void printError(const QString &message);
+  void printError(const QString &message);
 
-    ApplicationController &controller_;
+  ApplicationController &controller_;
 
-    QString displayDespiteCleaning;
+  QString displayDespiteCleaning;
 
-    QTextStream input_;
-    QTextStream output_;
-    QTextStream error_;
+  QTextStream input_;
+  QTextStream output_;
+  QTextStream error_;
 };
 
-} // namespace android_files_backup
+}  // namespace android_files_backup

@@ -5,67 +5,67 @@
 namespace android_files_backup {
 
 AdbDeviceState parseDeviceState(const QString &state) {
-    if (state == "device") {
-        return AdbDeviceState::Device;
-    }
+  if (state == "device") {
+    return AdbDeviceState::Device;
+  }
 
-    if (state == "unauthorized") {
-        return AdbDeviceState::Unauthorized;
-    }
+  if (state == "unauthorized") {
+    return AdbDeviceState::Unauthorized;
+  }
 
-    if (state == "offline") {
-        return AdbDeviceState::Offline;
-    }
+  if (state == "offline") {
+    return AdbDeviceState::Offline;
+  }
 
-    if (state == "no permissions") {
-        return AdbDeviceState::NoPermissions;
-    }
+  if (state == "no permissions") {
+    return AdbDeviceState::NoPermissions;
+  }
 
-    if (state == "bootloader") {
-        return AdbDeviceState::Bootloader;
-    }
+  if (state == "bootloader") {
+    return AdbDeviceState::Bootloader;
+  }
 
-    if (state == "recovery") {
-        return AdbDeviceState::Recovery;
-    }
+  if (state == "recovery") {
+    return AdbDeviceState::Recovery;
+  }
 
-    if (state == "sideload") {
-        return AdbDeviceState::Sideload;
-    }
+  if (state == "sideload") {
+    return AdbDeviceState::Sideload;
+  }
 
-    return AdbDeviceState::Unknown;
+  return AdbDeviceState::Unknown;
 }
 
 QString deviceStateToString(AdbDeviceState state) {
-    switch (state) {
+  switch (state) {
     case AdbDeviceState::Device:
-        return "device";
+      return "device";
     case AdbDeviceState::Unauthorized:
-        return "unauthorized";
+      return "unauthorized";
     case AdbDeviceState::Offline:
-        return "offline";
+      return "offline";
     case AdbDeviceState::NoPermissions:
-        return "no permissions";
+      return "no permissions";
     case AdbDeviceState::Bootloader:
-        return "bootloader";
+      return "bootloader";
     case AdbDeviceState::Recovery:
-        return "recovery";
+      return "recovery";
     case AdbDeviceState::Sideload:
-        return "sideload";
+      return "sideload";
     case AdbDeviceState::Disconnected:
-        return "disconnected";
+      return "disconnected";
     case AdbDeviceState::Unknown:
-        return "unknown";
-    }
+      return "unknown";
+  }
 
-    return "unknown";
+  return "unknown";
 }
 
 QString AdbDevice::printableDevice() const {
-    return QString("%1 | %2  %3")
-        .arg(serial)
-        .arg(model)
-        .arg(android_files_backup::deviceStateToString(state));
+  return QString("%1 | %2  %3")
+      .arg(serial)
+      .arg(model)
+      .arg(android_files_backup::deviceStateToString(state));
 }
 
-} // namespace android_files_backup
+}  // namespace android_files_backup
