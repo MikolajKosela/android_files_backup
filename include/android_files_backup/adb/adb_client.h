@@ -13,6 +13,8 @@ class AdbClient {
   std::expected<QStringList, QString> runForDevice(
       const AdbDevice &device, const QStringList &arguments) const;
 
+  std::expected<AdbDevice, QString> parseDeviceLine(const QString &line) const;
+
  public:
   [[nodiscard]] std::expected<QList<AdbDevice>, QString> listDevices() const;
 
