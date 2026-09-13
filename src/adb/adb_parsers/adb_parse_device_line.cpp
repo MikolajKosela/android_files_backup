@@ -9,13 +9,12 @@
 #include <QStringList>
 #include <expected>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_parsers.h"
 
 namespace android_files_backup {
 
-std::expected<AdbDevice, QString> AdbClient::parseDeviceLine(
-    const QString &line) const {
+const std::expected<AdbDevice, QString> parseDeviceLine(const QString& line) {
   const QStringList parts =
       line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
 
@@ -37,7 +36,7 @@ std::expected<AdbDevice, QString> AdbClient::parseDeviceLine(
   device.state = parseDeviceState(stateText);
 
   for (qsizetype i = 2; i < parts.size(); ++i) {
-    const QString &token = parts[i];
+    const QString& token = parts[i];
 
     const qsizetype colonPosition = token.indexOf(';');
 

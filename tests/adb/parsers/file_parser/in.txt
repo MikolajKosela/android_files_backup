@@ -1,0 +1,24 @@
+drwxrwx--- 3 root everybody       3488 2024-03-23 22:28 100PINT
+drwxrwx--- 2 root everybody       3488 2022-07-07 19:32 AR\ Emoji
+drwxrwx--- 2 root everybody       3488 2022-02-03 13:10 AR\ Emoji\ camera
+drwxrwx--- 3 root everybody     516096 2026-09-01 15:54 Camera
+drwxrwx--- 2 root everybody       3488 2024-12-16 19:36 CapCut
+drwxrwx--- 2 root everybody       3488 2026-02-08 10:23 Do\ wydruku
+drwxrwx--- 2 root everybody      20480 2026-05-24 19:50 Facebook
+drwxrwx--- 3 root everybody       3488 2023-05-18 14:41 Game\ media
+drwxrwx--- 2 root everybody       3488 2026-05-24 19:50 ImageSave
+drwxrwx--- 2 root everybody       8192 2025-04-16 07:00 Książki
+drwxrwx--- 2 root everybody     516096 2024-04-06 15:40 Memy
+-rw-rw---- 1 root everybody 2512879363 2024-04-06 15:38 Memy.zip
+drwxrwx--- 3 root everybody       3488 2023-09-16 18:14 MiWatch
+drwxrwx--- 2 root everybody       3488 2026-07-07 17:14 Nagrania
+drwxrwx--- 2 root everybody       3488 2021-12-27 13:47 OpenCamera
+drwxrwx--- 2 root everybody       3488 2024-04-11 21:18 PhotoScan
+drwxrwx--- 2 root everybody       3488 2026-07-07 17:01 Screen\ recordings
+drwxrwx--- 2 root everybody     512000 2026-09-13 10:55 Screenshots
+drwxrwx--- 2 root everybody       3488 2024-06-27 10:10 TIME\ WARP\ SCAN
+drwxrwx--- 2 root everybody       3488 2021-03-22 19:31 Trymer\ wideo
+drwxrwx--- 2 root everybody       3488 2021-04-04 18:46 Video\ Editor
+drwxrwx--- 2 root everybody       3488 2022-12-31 16:00 Videocaptures
+drwxrwx--- 2 root everybody      20480 2023-08-05 12:15 Zoo
+-rw-rw---- 1 root everybody  825301959 2023-05-31 16:49 Zoo.7z

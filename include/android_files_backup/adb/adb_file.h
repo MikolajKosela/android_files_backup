@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QDateTime>
 #include <QString>
 
@@ -15,21 +17,26 @@ enum class FileType {
 };
 
 class AdbFile {
- public:
-  AdbFile(QString name, FileType type, QString permissions, qint64 size,
-          QString modification_time);
-
-  FileType type() const;
-  const QString& permissions() const;
-  qint64 size() const;
-  const QDateTime& modificationTime() const;
-
  private:
   QString name_;
+  QString path_;
   FileType type_;
   QString permissions_;
   qint64 size_;
   QDateTime modification_time_;
+
+ public:
+  AdbFile(QString name, QString path, FileType type, QString permissions,
+          qint64 size, QString modification_time);
+
+  const QString& name() const;
+  const QString& path() const;
+  FileType type() const;
+  const QString& permissions() const;
+  qint64 size() const;
+  const QDateTime& modificationTime() const;
 };
+
+QString fileTypeToString(FileType type);
 
 }  // namespace android_files_backup

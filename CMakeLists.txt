@@ -11,9 +11,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_standard_project_setup()
 
-qt_add_executable(android_files_backup
-    src/main.cpp
-
+add_library(android_files_backup_lib STATIC
     src/application/application_controller.cpp
 
     src/backup/backup_service.cpp
@@ -28,28 +26,51 @@ qt_add_executable(android_files_backup
     src/process/process_runner.cpp
 
     src/adb/adb_device.cpp
+    src/adb/adb_file.cpp
+
     src/adb/adb_client/adb_devices.cpp
     src/adb/adb_client/adb_directories.cpp
     src/adb/adb_client/adb_files.cpp
-    src/adb/adb_client/adb_parsers.cpp
     src/adb/adb_client/adb_runner.cpp
+
+    src/adb/adb_parsers/adb_parse_device_line.cpp
+    src/adb/adb_parsers/adb_parse_file_line.cpp
 
     src/utils/utils.cpp
 )
 
-target_include_directories(android_files_backup
-    PRIVATE
+target_include_directories(android_files_backup_lib
+    PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(android_files_backup
-    PRIVATE
+target_link_libraries(android_files_backup_lib
+    PUBLIC
         Qt6::Core
 )
 
-target_compile_options(android_files_backup
+target_compile_options(android_files_backup_lib
     PRIVATE
         -Wall
         -Wextra
         -Wpedantic
+)
+
+qt_add_executable(android_files_backup
+    src/main.cpp
+)
+
+target_link_libraries(android_files_backup
+    PRIVATE
+        android_files_backup_lib
+)
+
+
+add_executable(TEST_adb_file_parser
+    tests/adb/parsers/file_parser/file_parser.cpp
+)
+
+target_link_libraries(TEST_adb_file_parser
+    PRIVATE
+        android_files_backup_lib
 )
