@@ -16,13 +16,18 @@ add_library(android_files_backup_lib STATIC
 
     src/backup/backup_service.cpp
 
-    src/ui/cli_application.cpp
-    src/ui/cli_application_backup.cpp
-    src/ui/cli_application_device.cpp
-    src/ui/cli_application_input_output.cpp
-    src/ui/cli_application_local_navigation.cpp
-    src/ui/cli_application_remote_navigation.cpp
-    src/ui/cli_application_show_menu.cpp
+    src/ui/cli_application/cli_app_core.cpp
+
+    src/ui/cli_application/operations/cli_app_backup.cpp  
+    src/ui/cli_application/operations/cli_app_device.cpp  
+    src/ui/cli_application/operations/cli_app_local_novigation.cpp  
+    src/ui/cli_application/operations/cli_app_main_menu.cpp  
+    src/ui/cli_application/operations/cli_app_remote_navigation.cpp
+    
+    src/ui/cli_application/helpers/cli_app_basic_input.cpp  
+    src/ui/cli_application/helpers/cli_app_basic_output.cpp  
+    src/ui/cli_application/helpers/cli_app_show_menu.cpp
+
 
     src/process/process_runner.cpp
 
