@@ -3,7 +3,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "android_files_backup/result/result.h"
+#include "android_files_backup/process/process_result.h"
 
 namespace android_files_backup {
 

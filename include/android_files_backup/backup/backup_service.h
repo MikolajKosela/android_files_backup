@@ -5,7 +5,7 @@
 #include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/backup/backup_progress.h"
-#include "android_files_backup/result/result.h"
+#include "android_files_backup/backup/backup_result.h"
 
 namespace android_files_backup {
 

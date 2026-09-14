@@ -13,7 +13,6 @@
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/adb/adb_parsers.h"
 #include "android_files_backup/process/process_runner.h"
-#include "android_files_backup/result/result.h"
 
 namespace android_files_backup {
 
