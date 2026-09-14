@@ -22,6 +22,7 @@ add_library(android_files_backup_lib STATIC
     src/ui/cli_application_input_output.cpp
     src/ui/cli_application_local_navigation.cpp
     src/ui/cli_application_remote_navigation.cpp
+    src/ui/cli_application_show_menu.cpp
 
     src/process/process_runner.cpp
 
