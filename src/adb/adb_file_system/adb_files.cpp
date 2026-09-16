@@ -9,12 +9,12 @@
 #include <QStringList>
 #include <expected>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_file_system.h"
 
 namespace android_files_backup {
 
-[[nodiscard]] std::expected<QStringList, QString> AdbClient::findFiles(
+[[nodiscard]] std::expected<QStringList, QString> AdbFileSystem::findFiles(
     const AdbDevice &device, const QString &remote) const {
   const auto result = runForDevice(device, {"shell", "find", remote});
 
@@ -26,7 +26,7 @@ namespace android_files_backup {
   return *result;
 }
 
-[[nodiscard]] std::expected<QStringList, QString> AdbClient::pullFile(
+[[nodiscard]] std::expected<QStringList, QString> AdbFileSystem::pullFile(
     const AdbDevice &device, const QString &file, const QString &target) const {
   const auto result = runForDevice(device, {"pull", "-a", file, target});
 

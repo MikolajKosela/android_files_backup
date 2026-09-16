@@ -9,14 +9,14 @@
 #include <QStringList>
 #include <expected>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_file_system.h"
 #include "android_files_backup/process/process_result.h"
 #include "android_files_backup/process/process_runner.h"
 
 namespace android_files_backup {
 
-std::expected<QStringList, QString> AdbClient::runForDevice(
+std::expected<QStringList, QString> AdbFileSystem::runForDevice(
     const AdbDevice &device, const QStringList &arguments) const {
   QStringList argumentsWithDevice = {"-s", device.serial};
   argumentsWithDevice.append(arguments);

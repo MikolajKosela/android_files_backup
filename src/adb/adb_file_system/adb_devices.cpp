@@ -9,14 +9,14 @@
 #include <QStringList>
 #include <expected>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_file_system.h"
 #include "android_files_backup/adb/adb_parsers.h"
 #include "android_files_backup/process/process_runner.h"
 
 namespace android_files_backup {
 
-std::expected<AdbDeviceState, QString> AdbClient::getDeviceState(
+std::expected<AdbDeviceState, QString> AdbFileSystem::getDeviceState(
     const QString &serial) const {
   const ProcessResult result =
       runProcess("adb", {"-s", serial, "get-state"}, 5'000);
@@ -30,7 +30,7 @@ std::expected<AdbDeviceState, QString> AdbClient::getDeviceState(
   return parseDeviceState(state);
 }
 
-std::expected<QList<AdbDevice>, QString> AdbClient::listDevices() const {
+std::expected<QList<AdbDevice>, QString> AdbFileSystem::listDevices() const {
   const ProcessResult processResult = runProcess("adb", {"devices", "-l"});
 
   if (!processResult.success()) {

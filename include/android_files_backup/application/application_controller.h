@@ -7,8 +7,8 @@
 #include <expected>
 #include <optional>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_file_system.h"
 #include "android_files_backup/backup/backup_result.h"
 #include "android_files_backup/backup/backup_service.h"
 
@@ -39,7 +39,7 @@ class ApplicationController {
 
   [[nodiscard]] std::expected<QStringList, QString> listMemoryCards() const;
 
-  AdbClient adbClient_;
+  AdbFileSystem adbClient_;
   QList<AdbDevice> devices_;
   BackupService backupService_;
 

@@ -8,7 +8,7 @@
 
 namespace android_files_backup {
 
-class AdbClient {
+class AdbFileSystem {
  private:
   std::expected<QStringList, QString> runForDevice(
       const AdbDevice &device, const QStringList &arguments) const;

@@ -34,10 +34,10 @@ add_library(android_files_backup_lib STATIC
     src/adb/adb_device.cpp
     src/adb/adb_file.cpp
 
-    src/adb/adb_client/adb_devices.cpp
-    src/adb/adb_client/adb_directories.cpp
-    src/adb/adb_client/adb_files.cpp
-    src/adb/adb_client/adb_runner.cpp
+    src/adb/adb_file_system/adb_devices.cpp
+    src/adb/adb_file_system/adb_directories.cpp
+    src/adb/adb_file_system/adb_files.cpp
+    src/adb/adb_file_system/adb_runner.cpp
 
     src/adb/adb_parsers/adb_parse_device_line.cpp
     src/adb/adb_parsers/adb_parse_file_line.cpp

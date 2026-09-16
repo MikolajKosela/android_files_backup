@@ -9,12 +9,12 @@
 #include <QStringList>
 #include <expected>
 
-#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
+#include "android_files_backup/adb/adb_file_system.h"
 
 namespace android_files_backup {
 
-std::expected<QStringList, QString> AdbClient::listDirectories(
+std::expected<QStringList, QString> AdbFileSystem::listDirectories(
     const AdbDevice &device, const QString &root) const {
   // const QStringList result = runForDevice(
   // device, {"shell", "sh", "-c", "'cd " + root + " && realpath */'"});
@@ -37,7 +37,7 @@ std::expected<QStringList, QString> AdbClient::listDirectories(
   return list;
 }
 
-[[nodiscard]] std::expected<QString, QString> AdbClient::getParentDirectory(
+[[nodiscard]] std::expected<QString, QString> AdbFileSystem::getParentDirectory(
     const AdbDevice &device, const QString &child) const {
   const auto results = runForDevice(
       device, {"shell", "sh", "-c", "'cd " + child + " && cd .. && pwd'"});
@@ -57,8 +57,8 @@ std::expected<QStringList, QString> AdbClient::listDirectories(
   return path;
 }
 
-[[nodiscard]] std::expected<QStringList, QString> AdbClient::listMemoryCards(
-    const AdbDevice &device) const {
+[[nodiscard]] std::expected<QStringList, QString>
+AdbFileSystem::listMemoryCards(const AdbDevice &device) const {
   const auto paths = runForDevice(device, {"shell", "ls", "-d", "/storage/*"});
 
   if (!paths.has_value()) {
