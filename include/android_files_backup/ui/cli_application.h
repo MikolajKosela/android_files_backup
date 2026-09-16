@@ -12,8 +12,8 @@ class CliApplication {
   int run();
 
  private:
-  int showMenu(const QString &header, const QStringList &options,
-               int firstOption = 1);
+  [[nodiscard]] int showMenu(const QString &header, const QStringList &options,
+                             int firstOption = 1);
 
   void clearScreen();
   void showCaption(const QString caption);

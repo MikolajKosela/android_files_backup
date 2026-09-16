@@ -3,8 +3,6 @@
 #include <qhashfunctions.h>
 #include <qstringliteral.h>
 
-#include <QDir>
-
 #include "android_files_backup/ui/cli_application.h"
 
 namespace android_files_backup {
@@ -12,16 +10,11 @@ namespace android_files_backup {
 int CliApplication::showMainMenu() {
   clearScreen();
 
-  const QString menu =
-      "** Menu główne **\n"
-      "Wybierz opcję: \n"
-      "0. Wyjdź \n"
-      "1. Wybierz telefon \n"
-      "2. Przesył plików z telefonu na komputer \n";
+  const QStringList options = {"0. Wyjdź \n", "1. Wybierz telefon \n",
+                               "2. Przesył plików z telefonu na komputer \n"};
 
-  showCaption(menu);
-
-  const int choice = readInteger("Wybierz opcję: ", 0, 2);
+  const int choice =
+      showMenu("** Menu główne **\nWybierz opcję: \n", options, 0);
 
   switch (choice) {
     case 0:

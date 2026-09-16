@@ -2,8 +2,9 @@
 
 namespace android_files_backup {
 
-int CliApplication::showMenu(const QString &header, const QStringList &options,
-                             int firstOption) {
+[[nodiscard]] int CliApplication::showMenu(const QString &header,
+                                           const QStringList &options,
+                                           int firstOption) {
   output_ << "\n" << header << "\n";
 
   for (qsizetype i = 0; i < options.size(); ++i) {
