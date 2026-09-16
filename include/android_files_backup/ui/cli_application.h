@@ -17,6 +17,7 @@ class CliApplication {
 
   void clearScreen();
   void showCaption(const QString caption);
+  void showError(const QString error);
   void waitForEnter();
 
   int showMainMenu();
@@ -35,8 +36,6 @@ class CliApplication {
                                 int maximum);
 
   [[nodiscard]] QString readLine(const QString &prompt);
-
-  void printError(const QString &message);
 
   ApplicationController &controller_;
 

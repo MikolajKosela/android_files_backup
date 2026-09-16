@@ -9,89 +9,80 @@ void CliApplication::createFilesPull_functionForTesting(QString remote,
   clearScreen();
   newDirectory(target);
 
-  output_.flush();
-
   const auto result = controller_.createFilesPull_functionForTesting(
       remote, target, condition, [this](const BackupProgress &progress) {
-        output_ << "\r\x1B[2KPostęp: " << progress.processedFiles << " / "
-                << progress.totalFiles << " " << progress.currentFile;
-        output_.flush();
+        showCaption(
+            "\r\x1B[2KPostęp: " + QString::number(progress.processedFiles) +
+            " / " + QString::number(progress.totalFiles) + " " +
+            progress.currentFile);
       });
 
   if (!result.has_value()) {
-    error_ << "\nDoszło do błędu w trakcie wykonywania przesyłu plików\n"
-           << result.error();
-    error_.flush();
+    showError("\nDoszło do błędu w trakcie wykonywania przesyłu plików\n" +
+              result.error());
     return;
   }
 
   if (result->success()) {
-    output_ << "\n\nPomyślnie wykonano przesył plików :) \n";
-    output_ << "Nienapotkano żadnych błędów \n";
-    output_ << QStringLiteral(
-                   "Przeskanowano tyle plików: %1 \nSkopiowano "
-                   "tyle plików: %2 \n")
-                   .arg(result->scannedFiles)
-                   .arg(result->copiedFiles);
+    showCaption(
+        "\n\nPomyślnie wykonano przesył plików :) \n"
+        "Nienapotkano żadnych błędów \n" +
+        QStringLiteral("Przeskanowano tyle plików: %1 \nSkopiowano "
+                       "tyle plików: %2 \n")
+            .arg(result->scannedFiles)
+            .arg(result->copiedFiles));
   } else {
-    output_ << "\n\nWykonano przesył plików, jednak napotkano na problemy \n";
-    output_ << QStringLiteral(
-                   "Przeskanowano tyle plików: %1 \nSkopiowano "
-                   "tyle plików: %2 \nPominięto tyle plików: %3 \n")
-                   .arg(result->scannedFiles)
-                   .arg(result->copiedFiles)
-                   .arg(result->skippedFiles);
-    output_ << "Błędy podczas przesyłania: " << result->errors.size() << "\n";
+    showCaption("\n\nWykonano przesył plików, jednak napotkano na problemy \n" +
+                QStringLiteral("Przeskanowano tyle plików: %1 \nSkopiowano "
+                               "tyle plików: %2 \nPominięto tyle plików: %3 \n")
+                    .arg(result->scannedFiles)
+                    .arg(result->copiedFiles)
+                    .arg(result->skippedFiles) +
+                "Błędy podczas przesyłania: " +
+                QString::number(result->errors.size()) + "\n");
+
     const auto errorsCnt = result->errors.size();
 
     if (errorsCnt > 10) {
-      output_ << "Lista pierwszych 10 błędów: \n";
+      showCaption("Lista pierwszych 10 błędów: \n");
       for (auto i = 0; i < 10; i++) {
         const QString &err = result->errors[i];
 
-        output_ << "[" << i + 1 << "]" << " -> " << err << "\n";
+        showCaption("[" + QString::number(i + 1) + "] -> " + err + "\n");
       }
-      output_ << "... Pozostało tyle błędów do oczytania: " << errorsCnt - 10
-              << "\n";
-      output_.flush();
+      showCaption("... Pozostało tyle błędów do oczytania: " +
+                  QString::number(errorsCnt - 10) + "\n");
     } else {
-      output_ << "Lista błędów: \n";
+      showCaption("Lista błędów: \n");
       for (auto i = 0; i < result->errors.size(); i++) {
         const auto &err = result->errors[i];
-        output_ << "[" << i + 1 << "]" << " -> " << err << "\n";
+        showCaption("[" + QString::number(i + 1) + "] -> " + err + "\n");
       }
     }
-    output_.flush();
   }
-  output_ << "----------\n\n";
-
-  output_.flush();
+  showCaption("----------\n\n");
 }
 
 void CliApplication::createCustomFilesPull_functionForTesting() {
   displayDespiteCleaning = "";
 
   displayDespiteCleaning += "**Przesyłanie plików na komputer**\n";
-  output_ << displayDespiteCleaning;
-  output_.flush();
+  showCaption(displayDespiteCleaning);
 
   const QString remote = chooseRemoteDirectory();
   displayDespiteCleaning += "Prześlij z: " + remote + "\n";
-  output_ << displayDespiteCleaning;
-  output_.flush();
+  showCaption(displayDespiteCleaning);
 
   const QString destination = chooseLocalDirectory();
   displayDespiteCleaning += "Zapisz w: " + destination + "\n";
-  output_ << displayDespiteCleaning;
-  output_.flush();
+  showCaption(displayDespiteCleaning);
 
   const QString pattern = choosePattern();
   displayDespiteCleaning += "Wzorzec: " + pattern;
 
   displayDespiteCleaning +=
       "\n**Rozpoczynam procedurę przesyłania plików na komputer**\n";
-  output_ << displayDespiteCleaning;
-  output_.flush();
+  showCaption(displayDespiteCleaning);
 
   createFilesPull_functionForTesting(remote, destination, pattern);
   displayDespiteCleaning = "";

@@ -14,4 +14,9 @@ void CliApplication::showCaption(const QString caption) {
   output_.flush();
 }
 
+void CliApplication::showError(const QString error) {
+  error_ << error;
+  error_.flush();
+}
+
 }  // namespace android_files_backup
