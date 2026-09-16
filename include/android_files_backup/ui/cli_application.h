@@ -20,7 +20,6 @@ class CliApplication {
   void waitForEnter();
 
   int showMainMenu();
-  void showDevices();
   void choiceDevice();
   void selectDevice(int choice);
 

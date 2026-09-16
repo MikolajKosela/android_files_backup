@@ -37,57 +37,50 @@ QString CliApplication::chooseRemoteDirectory() {
 
   while (true) {
     clearScreen();
-    output_ << "Poczekaj, aż program przeskanuje ten katalog";
-    output_.flush();
+    showCaption("Poczekaj, aż program przeskanuje ten katalog");
+
     const QStringList list =
         controller_.listRemoteDirectories(currentPath).value();
 
     clearScreen();
-    output_ << "\n**Wybierz katalog w pamięci telefonu:**\n"
-            << "*Przydatne skróty: \n"
-            << " 0 Pamięć wewnętrzna \n";
-
     const QStringList memoryCards = controller_.listMemoryCards().value();
-    for (auto i = 0; i < memoryCards.size(); i++) {
-      output_ << " " << i * (-1) - 1 << ". Karta Pamięci "
-              << QFileInfo(memoryCards[i]).fileName() << "\n";
-    }
 
-    output_ << "\n*Bieżący katalog: \n"
-            << toDisplayPath(currentPath, memoryCards) << ":\n"
-            << " 1. . (Wybierz ten katalog)\n"
-            << " 2. .. (Przejdź wyżej)\n";
+    QString header =
+        "**Wybierz katalog w pamięci telefonu:**\n*Bieżący katalog: \n" +
+        toDisplayPath(currentPath, memoryCards) + ":";
+    QStringList options;
+
+    for (auto i = 0; i < memoryCards.size(); i++) {
+      options << "Karta Pamięci " + QFileInfo(memoryCards[i]).fileName();
+    }
+    options << "Pamięć wewnętrzna";
+
+    options << ". (Wybierz ten katalog)" << ".. (Przejdź wyżej)";
 
     for (qsizetype i = 0; i < list.size(); ++i) {
-      output_ << " " << i + 3 << ". " << QFileInfo(list[i]).fileName() << "\n";
+      options << QFileInfo(list[i]).fileName();
     }
 
-    output_.flush();
-
-    const int choice = readInteger(
-        "Wybierz opcję: ", static_cast<int>(memoryCards.size()) * (-1),
-        static_cast<int>(list.size()) + 2);
+    const int choice = showMenu(header, options, memoryCards.size() * (-1));
 
     if (choice < 0) {
       currentPath = memoryCards[(-1) * choice - 1];
       continue;
-    }
 
-    if (choice == 0) {
+    } else if (choice == 0) {
       currentPath = "/sdcard";
       continue;
-    }
 
-    if (choice == 1) {
+    } else if (choice == 1) {
       return currentPath;
-    }
 
-    if (choice == 2) {
+    } else if (choice == 2) {
       currentPath = controller_.getRemoteParentDirectory(currentPath).value();
       continue;
-    }
 
-    currentPath = list[choice - 3];
+    } else {
+      currentPath = list[choice - 3];
+    }
   }
   return currentPath;
 }

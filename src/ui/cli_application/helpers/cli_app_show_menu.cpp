@@ -5,7 +5,7 @@ namespace android_files_backup {
 [[nodiscard]] int CliApplication::showMenu(const QString &header,
                                            const QStringList &options,
                                            int firstOption) {
-  output_ << "\n" << header << "\n";
+  output_ << header << "\n";
 
   for (qsizetype i = 0; i < options.size(); ++i) {
     output_ << " " << firstOption + i << ". " << options[i] << "\n";

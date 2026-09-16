@@ -10,11 +10,10 @@ namespace android_files_backup {
 int CliApplication::showMainMenu() {
   clearScreen();
 
-  const QStringList options = {"0. Wyjdź \n", "1. Wybierz telefon \n",
-                               "2. Przesył plików z telefonu na komputer \n"};
+  const QStringList options = {"Wyjdź", "Wybierz telefon",
+                               "Przesył plików z telefonu na komputer"};
 
-  const int choice =
-      showMenu("** Menu główne **\nWybierz opcję: \n", options, 0);
+  const int choice = showMenu("** Menu główne **\nWybierz opcję: ", options, 0);
 
   switch (choice) {
     case 0:

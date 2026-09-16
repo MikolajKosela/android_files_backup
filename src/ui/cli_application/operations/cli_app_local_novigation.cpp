@@ -28,33 +28,30 @@ QString CliApplication::chooseLocalDirectory() {
 
     const int choice = showMenu(
         "**Zapisz pliki w katalogu:**\n"
-        "*Przydatne skróty:\n"
-        " 0 Katalog domowy\n"
         "*Bieżący katalog:\n" +
             currentPath + ":",
         options, 0);
 
-    switch (choice) {
-      case 0:
-        currentPath = QDir::homePath();
-        continue;
-        break;
+    if (choice == 0) {
+      currentPath = QDir::homePath();
+      continue;
+      break;
 
-      case 1:
-        return currentPath;
-        break;
+    } else if (choice == 1) {
+      return currentPath;
+      break;
 
-      case 2:
-        QDir parent(currentPath);
+    } else if (choice == 2) {
+      QDir parent(currentPath);
 
-        if (parent.cdUp()) {
-          currentPath = parent.absolutePath();
-        }
+      if (parent.cdUp()) {
+        currentPath = parent.absolutePath();
+      }
 
-        continue;
+      continue;
+    } else {
+      currentPath = directories[choice - 3].absoluteFilePath();
     }
-
-    currentPath = directories[choice - 3].absoluteFilePath();
   }
 
   return currentPath;
