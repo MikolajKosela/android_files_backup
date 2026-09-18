@@ -9,12 +9,14 @@
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/adb/adb_file_system.h"
 #include "android_files_backup/backup/backup_progress.h"
+#include "android_files_backup/backup/backup_service.h"
 
 namespace android_files_backup {
-ApplicationController::ApplicationController() {}
+ApplicationController::ApplicationController()
+    : adbFileSystem_(adbClient_), backupService_(adbClient_) {}
 
 void ApplicationController::refreshDevices() {
-  if (const auto result = adbClient_.listDevices(); result.has_value()) {
+  if (const auto result = adbFileSystem_.listDevices(); result.has_value()) {
     devices_ = result.value();
   }
 }
@@ -47,7 +49,7 @@ ApplicationController::createFilesPull_functionForTesting(
   }
 
   const auto result = backupService_.performFilesPull_functionForTesting(
-      adbClient_, usedDevice_.value(), remote, target, condition,
+      adbFileSystem_, usedDevice_.value(), remote, target, condition,
       progressCallback);
 
   if (!result.has_value()) {
@@ -63,7 +65,7 @@ ApplicationController::listRemoteDirectories(const QString &root) const {
     return std::unexpected("Niewybrano urządzenia\n");
   }
 
-  return adbClient_.listDirectories(usedDevice_.value(), root);
+  return adbFileSystem_.listDirectories(usedDevice_.value(), root);
 }
 
 std::expected<QString, QString> ApplicationController::getRemoteParentDirectory(
@@ -72,7 +74,7 @@ std::expected<QString, QString> ApplicationController::getRemoteParentDirectory(
     return std::unexpected("Niewybrano urządzenia\n");
   }
 
-  return adbClient_.getParentDirectory(usedDevice_.value(), child);
+  return adbFileSystem_.getParentDirectory(usedDevice_.value(), child);
 }
 
 [[nodiscard]] std::expected<QStringList, QString>
@@ -81,7 +83,7 @@ ApplicationController::listMemoryCards() const {
     return std::unexpected("Niewybrano urządzenia\n");
   }
 
-  return adbClient_.listMemoryCards(usedDevice_.value());
+  return adbFileSystem_.listMemoryCards(usedDevice_.value());
 }
 
 }  // namespace android_files_backup

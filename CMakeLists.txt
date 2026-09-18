@@ -28,16 +28,13 @@ add_library(android_files_backup_lib STATIC
     src/ui/cli_application/helpers/cli_app_basic_output.cpp  
     src/ui/cli_application/helpers/cli_app_show_menu.cpp
 
-
-    src/process/process_runner.cpp
-
     src/adb/adb_device.cpp
+    src/adb/adb_client.cpp
     src/adb/adb_file.cpp
 
     src/adb/adb_file_system/adb_devices.cpp
     src/adb/adb_file_system/adb_directories.cpp
     src/adb/adb_file_system/adb_files.cpp
-    src/adb/adb_file_system/adb_runner.cpp
 
     src/adb/adb_parsers/adb_parse_device_line.cpp
     src/adb/adb_parsers/adb_parse_file_line.cpp

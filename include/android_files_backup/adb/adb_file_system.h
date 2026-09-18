@@ -4,16 +4,14 @@
 #include <QString>
 #include <expected>
 
+#include "android_files_backup/adb/adb_client.h"
 #include "android_files_backup/adb/adb_device.h"
 
 namespace android_files_backup {
 
 class AdbFileSystem {
- private:
-  std::expected<QStringList, QString> runForDevice(
-      const AdbDevice &device, const QStringList &arguments) const;
-
  public:
+  explicit AdbFileSystem(AdbClient &adbClient) : adbClient_(adbClient){};
   [[nodiscard]] std::expected<QList<AdbDevice>, QString> listDevices() const;
 
   [[nodiscard]] std::expected<AdbDeviceState, QString> getDeviceState(
@@ -31,9 +29,12 @@ class AdbFileSystem {
   [[nodiscard]] std::expected<QStringList, QString> findFiles(
       const AdbDevice &device, const QString &remote) const;
 
-  [[nodiscard]] std::expected<QStringList, QString> pullFile(
+  [[nodiscard]] std::expected<void, QString> pullFile(
       const AdbDevice &device, const QString &file,
       const QString &target) const;
+
+ private:
+  AdbClient &adbClient_;
 };
 
 }  // namespace android_files_backup

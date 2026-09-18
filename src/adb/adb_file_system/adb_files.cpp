@@ -1,10 +1,3 @@
-#include <qdebug.h>
-#include <qfileinfo.h>
-#include <qglobal.h>
-#include <qnamespace.h>
-
-#include <QFileInfo>
-#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <expected>
@@ -16,7 +9,7 @@ namespace android_files_backup {
 
 [[nodiscard]] std::expected<QStringList, QString> AdbFileSystem::findFiles(
     const AdbDevice &device, const QString &remote) const {
-  const auto result = runForDevice(device, {"shell", "find", remote});
+  const auto result = adbClient_.shell(device.serial, {"find", remote});
 
   if (!result.has_value()) {
     return std::unexpected("Błąd przy znalezieniu plików z podanej ścieżki\n" +
@@ -26,15 +19,15 @@ namespace android_files_backup {
   return *result;
 }
 
-[[nodiscard]] std::expected<QStringList, QString> AdbFileSystem::pullFile(
+[[nodiscard]] std::expected<void, QString> AdbFileSystem::pullFile(
     const AdbDevice &device, const QString &file, const QString &target) const {
-  const auto result = runForDevice(device, {"pull", "-a", file, target});
+  const auto result = adbClient_.pull(device.serial, {"-a", file, target});
 
   if (!result.has_value()) {
     return std::unexpected("Błąd przy kopiowaniu pliku\n" + result.error());
   }
 
-  return *result;
+  return {};
 }
 
 }  // namespace android_files_backup

@@ -39,11 +39,18 @@ QString CliApplication::chooseRemoteDirectory() {
     clearScreen();
     showCaption("Poczekaj, aż program przeskanuje ten katalog");
 
-    const QStringList list =
-        controller_.listRemoteDirectories(currentPath).value();
+    QStringList list;
+    if (const auto result = controller_.listRemoteDirectories(currentPath);
+        result.has_value()) {
+      list.append(result.value());
+    }
 
     clearScreen();
-    const QStringList memoryCards = controller_.listMemoryCards().value();
+    QStringList memoryCards;
+
+    if (const auto result = controller_.listMemoryCards(); result.has_value()) {
+      memoryCards.append(result.value());
+    }
 
     QString header =
         "**Wybierz katalog w pamięci telefonu:**\n*Bieżący katalog: \n" +

@@ -13,6 +13,8 @@
 #include "android_files_backup/utils/utils.h"
 
 namespace android_files_backup {
+BackupService::BackupService(AdbClient &adbClient)
+    : adbFileSystem_(adbClient) {}
 
 std::expected<BackupResult, QString>
 BackupService::performFilesPull_functionForTesting(
@@ -22,7 +24,6 @@ BackupService::performFilesPull_functionForTesting(
   BackupResult result;
 
   const auto files = adbClient.findFiles(device, remote);
-  // adbClient.runForDevice(device, {"shell", "find", remote});
 
   if (!files.has_value()) {
     return std::unexpected("Błąd:\n" + files.error());

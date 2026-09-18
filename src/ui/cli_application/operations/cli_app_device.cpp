@@ -26,12 +26,10 @@ void CliApplication::choiceDevice() {
   }
   int const choice = showMenu("Znalezione urządzenia:", options, 0);
 
-  const AdbDevice &device = controller_.devices_[choice];
+  controller_.selectDevice(devices[choice].serial);
 
-  controller_.selectDevice(device.serial);
-
-  showCaption("Wybrano " + device.serial + " " + device.model +
-              "\n---------- \n");
+  showCaption("Wybrano " + devices[choice].serial + " " +
+              devices[choice].model + "\n---------- \n");
   waitForEnter();
 }
 

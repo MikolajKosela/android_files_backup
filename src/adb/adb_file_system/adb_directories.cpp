@@ -1,8 +1,3 @@
-#include <qdebug.h>
-#include <qfileinfo.h>
-#include <qglobal.h>
-#include <qnamespace.h>
-
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QString>
@@ -16,20 +11,17 @@ namespace android_files_backup {
 
 std::expected<QStringList, QString> AdbFileSystem::listDirectories(
     const AdbDevice &device, const QString &root) const {
-  // const QStringList result = runForDevice(
-  // device, {"shell", "sh", "-c", "'cd " + root + " && realpath */'"});
-
-  const auto paths = runForDevice(device, {"shell", "ls", "-d", root + "/*/"});
-
+  const auto paths =
+      adbClient_.shell(device.serial, {"ls", "-d", root + "/*/"});
   if (!paths.has_value()) {
-    return std::unexpected(
-        QString("Błąd w trakcie listowania folderu\n" + paths.error()));
+    return std::unexpected("Błąd przy listowaniu katalogów na telefonie\n" +
+                           paths.error());
   }
 
   QStringList list;
-  list.reserve(paths.value().size());
+  list.reserve(paths->size());
 
-  for (QString path : paths.value()) {
+  for (QString path : *paths) {
     while (path.endsWith('/')) path.chop(1);
 
     list.append(path);
@@ -39,16 +31,15 @@ std::expected<QStringList, QString> AdbFileSystem::listDirectories(
 
 [[nodiscard]] std::expected<QString, QString> AdbFileSystem::getParentDirectory(
     const AdbDevice &device, const QString &child) const {
-  const auto results = runForDevice(
-      device, {"shell", "sh", "-c", "'cd " + child + " && cd .. && pwd'"});
+  const auto result = adbClient_.shell(
+      device.serial, {"sh", "-c", "'cd " + child + " && cd .. && pwd'"});
 
-  if (!results.has_value()) {
+  if (!result.has_value()) {
     return std::unexpected("Błąd przy przechodzeniu do katalogu wyżej\n" +
-                           results.error());
+                           result.error());
   }
 
-  QString path = results.value().first();
-  // results[0]?
+  QString path = result->first();
 
   if (path.endsWith('/')) {
     path.chop(1);
@@ -59,7 +50,8 @@ std::expected<QStringList, QString> AdbFileSystem::listDirectories(
 
 [[nodiscard]] std::expected<QStringList, QString>
 AdbFileSystem::listMemoryCards(const AdbDevice &device) const {
-  const auto paths = runForDevice(device, {"shell", "ls", "-d", "/storage/*"});
+  const auto paths =
+      adbClient_.shell(device.serial, {"ls", "-d", "/storage/*"});
 
   if (!paths.has_value()) {
     return std::unexpected("Błąd przy listowaniu kart pamięci\n" +
@@ -68,7 +60,7 @@ AdbFileSystem::listMemoryCards(const AdbDevice &device) const {
 
   QStringList results;
 
-  for (const auto &path : paths.value()) {
+  for (const auto &path : *paths) {
     if (path != "/storage/emulated" && path != "/storage/self") {
       results.append(path);
     }

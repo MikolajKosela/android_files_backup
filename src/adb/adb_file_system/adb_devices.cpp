@@ -12,40 +12,31 @@
 #include "android_files_backup/adb/adb_device.h"
 #include "android_files_backup/adb/adb_file_system.h"
 #include "android_files_backup/adb/adb_parsers.h"
-#include "android_files_backup/process/process_runner.h"
 
 namespace android_files_backup {
 
 std::expected<AdbDeviceState, QString> AdbFileSystem::getDeviceState(
     const QString &serial) const {
-  const ProcessResult result =
-      runProcess("adb", {"-s", serial, "get-state"}, 5'000);
+  const auto result = adbClient_.getState(serial, {});
 
-  if (!result.success()) {
+  if (!result.has_value()) {
     return AdbDeviceState::Disconnected;
   }
 
-  const QString state = result.standardOutput.trimmed();
-
-  return parseDeviceState(state);
+  return parseDeviceState(*result);
 }
 
 std::expected<QList<AdbDevice>, QString> AdbFileSystem::listDevices() const {
-  const ProcessResult processResult = runProcess("adb", {"devices", "-l"});
+  const auto list = adbClient_.devices({"-l"});
 
-  if (!processResult.success()) {
-    return std::unexpected(
-        QString("Wystąpił błąd podczas listowania urządzeń \nLogi: %1 %2 \n")
-            .arg(processResult.standardOutput)
-            .arg(processResult.standardError));
+  if (!list.has_value()) {
+    return std::unexpected("Wystąpił błąd podczas listowanie urządzeń\n" +
+                           list.error());
   }
 
   QList<AdbDevice> devices;
 
-  const QStringList lines =
-      processResult.standardOutput.split('\n', Qt::SkipEmptyParts);
-
-  for (const QString &rawLine : lines) {
+  for (const QString &rawLine : *list) {
     const QString line = rawLine.trimmed();
 
     if (line.isEmpty()) {
