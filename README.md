@@ -18,10 +18,6 @@ When the **Allow USB debugging** prompt appears on your phone, accept it.
 
 Then clone the repository, install the required dependencies, build the project, and run the application.
 
-> **Important:** This version of the application does not ask the user for any configuration.
-
-> **Important:** Before building the project, change the arguments passed to `createFilesPull_functionForTesting()` in `cli_application.cpp` so that the application copies the expected files.
-
 The application does not modify files on your phone. It does not move, rename, or delete them.
 
 Before running the application, make sure that:
